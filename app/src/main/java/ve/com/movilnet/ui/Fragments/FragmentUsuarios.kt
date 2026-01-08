@@ -1,0 +1,74 @@
+package ve.com.movilnet.ui.Fragments
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import ve.com.movilnet.R
+import ve.com.movilnet.data.Adapter.UsuarioAdapter
+import ve.com.movilnet.ui.viewmodel.UsuarioViewModel
+
+class FragmentUsuarios : Fragment() {
+
+    // Inyección del ViewModel usando la librería ktx.
+    private val usuarioViewModel: UsuarioViewModel by viewModels()
+    private lateinit var usuarioAdapter: UsuarioAdapter
+    private lateinit var recyclerView: RecyclerView
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Infla el layout para este fragmento.
+        return inflater.inflate(R.layout.fragment_usuarios, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Configura el RecyclerView.
+        setupRecyclerView(view)
+
+        // Observa los cambios en los datos y el estado de la UI.
+        observeViewModel()
+
+        // Pide al ViewModel que cargue los datos.
+        usuarioViewModel.fetchUsuarios()
+    }
+
+    private fun setupRecyclerView(view: View) {
+        recyclerView = view.findViewById(R.id.recyclerViewUsuarios)
+        // Inicializa el adaptador con una lista vacía.
+        usuarioAdapter = UsuarioAdapter(mutableListOf())
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = usuarioAdapter
+    }
+
+    private fun observeViewModel() {
+        // Observador para la lista de usuarios.
+        usuarioViewModel.usuarios.observe(viewLifecycleOwner, Observer { usuarios ->
+            usuarios?.let {
+                // Cuando llegan nuevos datos, actualiza el adaptador.
+                usuarioAdapter.updateData(it)
+            }
+        })
+
+        // Observador para mensajes de error.
+        usuarioViewModel.errorMessage.observe(viewLifecycleOwner, Observer { errorMsg ->
+            errorMsg?.let {
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }
+        })
+
+        // Observador para el estado de carga (puedes mostrar/ocultar un ProgressBar).
+        usuarioViewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+            // if (isLoading) { /* Mostrar ProgressBar */ } else { /* Ocultar ProgressBar */ }
+        })
+    }
+}
