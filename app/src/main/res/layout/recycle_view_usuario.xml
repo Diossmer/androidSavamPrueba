@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
     android:clickable="true"
     android:focusable="true"
+    android:layout_marginBottom="8dp"
     android:foreground="?android:attr/selectableItemBackground">
 
     <androidx.cardview.widget.CardView
@@ -51,13 +51,34 @@
                 android:text="Correo Electrónico"
                 android:textSize="16sp" />
 
-            <Button
+            <!--Button
                 android:id="@+id/btn_editar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginTop="8dp"
-                android:text="Editar" />
+                android:text="Editar" /-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end">
+
+                <Button
+                    android:id="@+id/btn_editar"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Editar" />
+
+                <Button
+                    android:id="@+id/btn_eliminar"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:textColor="@android:color/holo_red_dark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Eliminar" />
+            </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </RelativeLayout>

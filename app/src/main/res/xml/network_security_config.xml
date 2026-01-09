@@ -5,8 +5,8 @@
         <!-- CORRECTO: IP de la COMPUTADORA -->
         <domain includeSubdomains="true">192.168.100.101</domain>
         <domain includeSubdomains="true">192.168.1.101</domain>
-        <domain includeSubdomains="true">192.168.1.11</domain>
-        <domain includeSubdomains="true">10.206.74.225</domain>
+        <domain includeSubdomains="true">10.183.53.247</domain>
+        <domain includeSubdomains="true">10.159.33.225</domain>
         <domain includeSubdomains="true">localhost</domain>
     </domain-config>
 </network-security-config>

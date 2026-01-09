@@ -7,6 +7,6 @@ data class Roles(
     @SerializedName("_id") val id: String,
     @SerializedName("nombre") val nombre: String?,
     @SerializedName("descripcion") val descripcion: String?,
-    @SerializedName("accion") val accion: Array<Accion?>
+    @SerializedName("accion") val accion: List<Accion?>
 )
 

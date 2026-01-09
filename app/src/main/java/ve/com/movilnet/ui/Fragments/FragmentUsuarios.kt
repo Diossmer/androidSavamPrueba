@@ -6,20 +6,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import ve.com.movilnet.R
 import ve.com.movilnet.data.Adapter.UsuarioAdapter
 import ve.com.movilnet.ui.viewmodel.UsuarioViewModel
+import ve.com.savam.data.models.Usuario
 
-class FragmentUsuarios : Fragment() {
+class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
 
     // Inyección del ViewModel usando la librería ktx.
-    private val usuarioViewModel: UsuarioViewModel by viewModels()
+    private val usuarioViewModel: UsuarioViewModel by activityViewModels()
     private lateinit var usuarioAdapter: UsuarioAdapter
     private lateinit var recyclerView: RecyclerView
+    private lateinit var fab: FloatingActionButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,6 +36,11 @@ class FragmentUsuarios : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        fab = view.findViewById(R.id.fabAgregarUsuario)
+        fab.setOnClickListener {
+            UsuarioDialogFragment.newInstance().show(parentFragmentManager, "dialog_usuario")
+        }
 
         // Configura el RecyclerView.
         setupRecyclerView(view)
@@ -44,8 +54,8 @@ class FragmentUsuarios : Fragment() {
 
     private fun setupRecyclerView(view: View) {
         recyclerView = view.findViewById(R.id.recyclerViewUsuarios)
-        // Inicializa el adaptador con una lista vacía.
-        usuarioAdapter = UsuarioAdapter(mutableListOf())
+        // Inicializa el adaptador con una lista vacía.// Pasa 'this' como listener al adaptador
+        usuarioAdapter = UsuarioAdapter(mutableListOf(), this)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = usuarioAdapter
     }
@@ -70,5 +80,25 @@ class FragmentUsuarios : Fragment() {
         usuarioViewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
             // if (isLoading) { /* Mostrar ProgressBar */ } else { /* Ocultar ProgressBar */ }
         })
+    }
+
+    override fun onEditClick(usuario: Usuario) {
+        // Muestra el dialog para editar, pasando el ID del usuario
+        UsuarioDialogFragment.newInstance(usuario.id)
+            .show(parentFragmentManager, "dialog_usuario_edit")
+    }
+
+    override fun onDeleteClick(usuario: Usuario) {
+        // Muestra un dialog de confirmación antes de borrar
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Confirmar eliminación")
+            .setMessage("¿Estás seguro de que quieres eliminar a ${usuario.nombre} ${usuario.apellido}?")
+            .setNegativeButton("Cancelar", null)
+            .setPositiveButton("Eliminar") { _, _ ->
+                usuario.id?.let {
+                    usuarioViewModel.eliminarUsuario(it)
+                }
+            }
+            .show()
     }
 }

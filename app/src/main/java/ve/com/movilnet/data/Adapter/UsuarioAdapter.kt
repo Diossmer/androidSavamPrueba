@@ -3,12 +3,27 @@ package ve.com.movilnet.data.Adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ve.com.movilnet.R
 import ve.com.savam.data.models.Usuario
 
-class UsuarioAdapter(private var usuarios: MutableList<Usuario>) : RecyclerView.Adapter<UsuarioAdapter.UsuarioViewHolder>() {
+class UsuarioAdapter(
+    private var usuarios: MutableList<Usuario>,
+    private val listener: OnUsuarioClickListener
+) : RecyclerView.Adapter<UsuarioAdapter.UsuarioViewHolder>() {
+    /**
+     *     Pasos de los fragment
+     *     se crea el crud en viewModel
+     *     se crea el fragment
+     *     y por ultimo se junta en el adapter el viewmodel y el fragment
+     */
+    // Interface para manejar los clics
+    interface OnUsuarioClickListener {
+        fun onEditClick(usuario: Usuario)
+        fun onDeleteClick(usuario: Usuario)
+    }
 
     // El ViewHolder contiene las vistas (TextViews, etc.) para cada item.
     // Se corresponde con tu layout 'recycle_view_usuario.xml'.
@@ -17,7 +32,11 @@ class UsuarioAdapter(private var usuarios: MutableList<Usuario>) : RecyclerView.
         val nombreTextView: TextView = itemView.findViewById(R.id.nombre)
         val apellidoTextView: TextView = itemView.findViewById(R.id.apellido)
         val correoTextView: TextView = itemView.findViewById(R.id.correo)
+
         //val editButton: Button = itemView.findViewById(R.id.btn_editar) // Añadí un ID al botón
+        val editButton: Button = itemView.findViewById(R.id.btn_editar)
+        val deleteButton: Button =
+            itemView.findViewById(R.id.btn_eliminar) // Necesitarás añadir este botón
     }
 
     // Crea una nueva vista (invocado por el layout manager).
@@ -40,8 +59,15 @@ class UsuarioAdapter(private var usuarios: MutableList<Usuario>) : RecyclerView.
 
         // Aquí puedes añadir listeners para los botones de editar/eliminar
         //holder.editButton.setOnClickListener {
-            // Lógica para editar el usuario en la posición 'position'
+        // Lógica para editar el usuario en la posición 'position'
         //}
+        holder.editButton.setOnClickListener {
+            listener.onEditClick(usuario)
+        }
+
+        holder.deleteButton.setOnClickListener {
+            listener.onDeleteClick(usuario)
+        }
     }
 
     // Devuelve el número total de items en la lista.

@@ -22,6 +22,7 @@ import ve.com.movilnet.data.Authentication.AuthInterceptor
 import ve.com.movilnet.data.Authentication.SessionManager
 import ve.com.movilnet.data.Services.CredentialsServices
 import ve.com.movilnet.ui.ViewModel.SecondActivity
+import ve.com.movilnet.utils.RetrofitClient
 import ve.com.savam.data.models.LoginCredentials
 
 class MainActivity : AppCompatActivity() {
@@ -47,7 +48,7 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     // 1. Llama a la API para invalidar el token en el servidor
-                    val response = credentialsServices.logout() // <-- LLAMADA A LA API
+                    val response = RetrofitClient.credentialsServices.logout() // <-- LLAMADA A LA API
 
                     if (response.isSuccessful) {
                         Log.d("LOGOUT_API", "Token invalidado en el servidor correctamente.")
@@ -87,6 +88,7 @@ class MainActivity : AppCompatActivity() {
 
         //Inicializo la sessionManager
         sessionManager = SessionManager(applicationContext)
+        /*
         // Contruyendo el OkHttpClient y Retrofit con el Interceptor
         val authInterceptor = AuthInterceptor(sessionManager)
         //se crea el cliente de OkHttp añadiendo tu interceptor
@@ -94,16 +96,17 @@ class MainActivity : AppCompatActivity() {
         val retrofit = Retrofit.Builder()
             //.baseUrl("http://10.0.2.2:3000/api/")
             //// Ejemplo si la IP de tu PC es 192.168.100.5 no la del telefono
-            .baseUrl("http:/10.206.74.225:3000/api/")
+            .baseUrl("http:/192.168.1.101:3000/api/")
             .client(okHttpClient)// <--------- ¡Aqui esta la magia! usando el cliente de OkHttp personalizado
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+        */
 
         usuarioEdit.addTextChangedListener(textWatcher)
         passwordEdit.addTextChangedListener(textWatcher)
 
         // Inicializa el servicio aquí, una sola vez.
-        credentialsServices = retrofit.create(CredentialsServices::class.java)
+        //credentialsServices = retrofit.create(CredentialsServices::class.java)
         ingresarButton.setOnClickListener {
             login()
         }
@@ -124,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         val loginRequest = LoginCredentials(usuario, contrasena)
         lifecycleScope.launch {
             try {
-                val response = credentialsServices.loginPost(loginRequest)
+                val response = RetrofitClient.credentialsServices.loginPost(loginRequest)
 
                 // Aquí puedes verificar la respuesta del servidor
                 if (response.isSuccessful) {

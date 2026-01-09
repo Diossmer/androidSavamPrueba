@@ -4,12 +4,14 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ve.com.movilnet.data.Services.CredentialsServices
+import ve.com.movilnet.data.Services.RolesServices
 import ve.com.movilnet.data.Services.UsuariosServices
 
 object RetrofitClient {
     // URL base de tu API.
     // Si estás probando en el emulador de Android, 10.0.2.2 apunta al localhost de tu máquina.
-    private const val BASE_URL = "http://10.206.74.225:3000/api/" // <-- ¡CAMBIA ESTA URL POR LA DE TU API!
+    private const val BASE_URL = "http://192.168.1.101:3000/api/" // <-- ¡CAMBIA ESTA URL POR LA DE TU API!
 
     // 1. Crea el interceptor de logs
     private val logging = HttpLoggingInterceptor().apply {
@@ -23,7 +25,7 @@ object RetrofitClient {
 
     // Creación "perezosa" (lazy) de la instancia de Retrofit.
     // Solo se creará una vez cuando se necesite por primera vez.
-    val instance: UsuariosServices by lazy {
+    val usuariosServices: UsuariosServices by lazy {
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create()) // Usa Gson para parsear el JSON
@@ -31,5 +33,24 @@ object RetrofitClient {
             .build()
 
         retrofit.create(UsuariosServices::class.java)
+    }
+
+    val credentialsServices: CredentialsServices by lazy {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create()) // Usa Gson para parsear el JSON
+            .client(client)
+            .build()
+
+        retrofit.create(CredentialsServices::class.java)
+    }
+
+    val rolesServices: RolesServices by lazy {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+        retrofit.create(RolesServices::class.java)
     }
 }
