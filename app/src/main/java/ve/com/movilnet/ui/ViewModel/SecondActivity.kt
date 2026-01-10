@@ -45,6 +45,17 @@ class SecondActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.mainSecond) // Usa el ID correcto del XML
         navigationView = findViewById(R.id.nav_view) // Inicializa navigation
 
+        // Mueve la lógica de la cabecera aquí.
+        val headerView = navigationView.getHeaderView(0)
+        val userNameTextView: TextView = headerView.findViewById(R.id.credentialId)
+        val userEmailTextView: TextView = headerView.findViewById(R.id.credentialCorreo)
+
+        val userName = sessionManager.fetchUserName()
+        val userEmail = sessionManager.fetchUserEmail()
+
+        userNameTextView.text = userName ?: "Nombre no disponible"
+        userEmailTextView.text = userEmail ?: "Email no disponible"
+        // --- Configurar el botón de hamburguesa ---
         // Esta línea crea el botón (☰) y gestiona la apertura/cierre del menú
         toggle = ActionBarDrawerToggle(
             this,

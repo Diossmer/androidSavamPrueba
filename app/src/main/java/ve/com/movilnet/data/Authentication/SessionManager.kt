@@ -17,6 +17,8 @@ class SessionManager(context: Context) {
         private const val PREFS_NAME = "session_prefs"
         private const val KEY_AUTH_TOKEN = "token"
         private const val KEY_USER_ROLE = "role"
+        private const val KEY_USER_NAME = "USER_NAME"
+        private const val KEY_CORREO = "USER_EMAIL"
     }
 
     /**
@@ -60,6 +62,22 @@ class SessionManager(context: Context) {
         editor.remove(KEY_AUTH_TOKEN)
         editor.remove(KEY_USER_ROLE)
         editor.apply()
+    }
+
+    fun saveUserName(name: String) {
+        editor.putString(KEY_USER_NAME, name).apply()
+    }
+
+    fun fetchUserName(): String? {
+        return sharedPreferences.getString(KEY_USER_NAME, null)
+    }
+
+    fun saveUserEmail(correo: String?) {
+        editor.putString(KEY_CORREO, correo).apply()
+    }
+
+    fun fetchUserEmail(): String? {
+        return sharedPreferences.getString(KEY_CORREO, null)
     }
 }
 /*

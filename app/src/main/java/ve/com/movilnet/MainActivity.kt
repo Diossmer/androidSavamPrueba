@@ -138,6 +138,11 @@ class MainActivity : AppCompatActivity() {
                     if (loginResponse?.token != null && loginResponse.usuario?.roles != null) {
                         sessionManager.saveAuthToken(loginResponse.token)
                         sessionManager.saveUserRole(loginResponse.usuario.roles)
+
+                        // Guardamos el nombre y correo
+                        val nombreCompleto = "${loginResponse.usuario.nombre} ${loginResponse.usuario.apellido}"
+                        sessionManager.saveUserName(nombreCompleto)
+                        sessionManager.saveUserEmail(loginResponse.usuario.correo)
                         // Login exitoso
                         Toast.makeText(this@MainActivity, "Login Exitoso!", Toast.LENGTH_SHORT)
                             .show()
