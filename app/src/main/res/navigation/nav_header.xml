@@ -19,11 +19,13 @@
             android:src="@mipmap/ic_launcher_round"/>
     </LinearLayout>
     <TextView
+        android:id="@+id/credentialId"
         android:text="@string/app_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
     <TextView
+        android:id="@+id/credentialCorreo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="email.com.ve"/>

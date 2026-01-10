@@ -25,6 +25,40 @@ class UsuarioViewModel : ViewModel() {
     val isLoading: LiveData<Boolean> = _isLoading
     private val _roles = MutableLiveData<List<Roles>>()
     val roles: LiveData<List<Roles>> = _roles
+    // --- NUEVO LIVE DATA PARA EL USUARIO SELECCIONADO ---
+    private val _usuarioSeleccionado = MutableLiveData<Usuario?>()
+    val usuarioSeleccionado: LiveData<Usuario?> = _usuarioSeleccionado
+    // --- AÑADE ESTO: LiveData para el usuario que ha iniciado sesión ---
+    private val _loggedInUser = MutableLiveData<Usuario?>()
+    val loggedInUser: LiveData<Usuario?> = _loggedInUser
+
+    // Esta función es la que establece quién es el usuario actual.
+    // Deberías llamarla después de un inicio de sesión exitoso.
+    fun setLoggedInUser(usuario: Usuario) {
+        _loggedInUser.value = usuario
+    }
+    // Llama a esta función para simular la carga del usuario actual
+    // En una app real, esta función obtendría el usuario guardado en SharedPreferences o una base de datos.
+    fun loadCurrentUser() {
+        viewModelScope.launch {
+            // ESTA ES LA LÓGICA QUE DEBES ADAPTAR
+            // Por ahora, para que funcione, vamos a simular que el usuario actual
+            // es el primer administrador que encontremos en la lista.
+            // Si no hay lista, no hacemos nada.
+            val userList = _usuarios.value
+            if (userList.isNullOrEmpty()) {
+                // Si la lista de usuarios aún no se ha cargado, podríamos esperar o no hacer nada.
+                // Por ahora, no hacemos nada.
+                return@launch
+            }
+
+            // Buscamos un usuario con rol de "Administrador" para simular.
+            // Cambia "Administrador" por el nombre del rol que uses.
+            val adminUser = userList.find { it.roles?.nombre == "Administrador" }
+
+            _loggedInUser.value = adminUser
+        }
+    }
 
     // Llama a esta función para cargar la lista de usuarios.
     fun fetchUsuarios() {
@@ -37,6 +71,9 @@ class UsuarioViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     // Si la respuesta es exitosa, actualiza el LiveData.
                     _usuarios.value = response.body()
+                    // --- IMPORTANTE ---
+                    // Una vez que tenemos la lista de usuarios, cargamos al usuario actual.
+                    loadCurrentUser()
                 } else {
                     // Si hay un error en la respuesta, notifícalo.
                     _errorMessage.value = "Error: ${response.code()} - ${response.message()}"
@@ -109,6 +146,26 @@ class UsuarioViewModel : ViewModel() {
         }
     }
 
+    fun mostrarUsuario(usuarioId: String) {
+        // Debes usar una corrutina para llamadas suspend
+        viewModelScope.launch {
+            _isLoading.value = true // Indica que estás cargando algo
+            try {
+                val response = RetrofitClient.usuariosServices.showUsuario(usuarioId)
+                if (response.isSuccessful) {
+                    // SOLUCIÓN: Asigna el usuario único al nuevo LiveData
+                    _usuarioSeleccionado.value = response.body()
+                } else {
+                    _errorMessage.value =
+                        "Error al mostrar: ${response.code()} - ${response.errorBody()?.string()}"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Fallo al mostrar: ${e.message}"
+            }
+            _isLoading.value = false // Termina la carga
+        }
+    }
+
     fun actualizarUsuario(usuario: Usuario) {
         viewModelScope.launch {
             try {
@@ -137,7 +194,7 @@ class UsuarioViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     fetchUsuarios() // Refresca la lista después de actualizar
                 } else {
-                    _errorMessage.value = "Error al actualizar: ${response.code()}"
+                    _errorMessage.value = "Error al actualizar: ${response.code()} - ${response.errorBody()?.string()}"
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Fallo al actualizar: ${e.message}"

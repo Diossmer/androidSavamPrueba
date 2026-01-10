@@ -15,12 +15,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import ve.com.movilnet.data.Authentication.AuthInterceptor
+//import okhttp3.OkHttpClient
+//import retrofit2.Retrofit
+//import retrofit2.converter.gson.GsonConverterFactory
+//import ve.com.movilnet.data.Authentication.AuthInterceptor
 import ve.com.movilnet.data.Authentication.SessionManager
-import ve.com.movilnet.data.Services.CredentialsServices
+//import ve.com.movilnet.data.Services.CredentialsServices
 import ve.com.movilnet.ui.ViewModel.SecondActivity
 import ve.com.movilnet.utils.RetrofitClient
 import ve.com.savam.data.models.LoginCredentials
@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var usuarioEdit: EditText
     private lateinit var passwordEdit: EditText
     private lateinit var ingresarButton: Button
-    private lateinit var credentialsServices: CredentialsServices
+    //private lateinit var credentialsServices: CredentialsServices
 
     //declarando la sessionManager
     private lateinit var sessionManager: SessionManager

@@ -1,13 +1,14 @@
 package ve.com.movilnet.ui.Fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +26,7 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
     private lateinit var usuarioAdapter: UsuarioAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var fab: FloatingActionButton
+    private lateinit var nombreTextViewTitulo: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +39,7 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        nombreTextViewTitulo = view.findViewById(R.id.nombreTextView)
         fab = view.findViewById(R.id.fabAgregarUsuario)
         fab.setOnClickListener {
             UsuarioDialogFragment.newInstance().show(parentFragmentManager, "dialog_usuario")
@@ -61,6 +64,16 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
     }
 
     private fun observeViewModel() {
+        // --- ESTE ES EL OBSERVADOR CLAVE ---
+        usuarioViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { usuarioLogueado ->
+            if (usuarioLogueado != null) {
+                // Cuando el ViewModel nos diga quién es el usuario, actualizamos el TextView
+                nombreTextViewTitulo.text = usuarioLogueado.roles?.nombre ?: "Sin rol"
+            } else {
+                nombreTextViewTitulo.text = "Bienvenido" // O algún otro texto por defecto
+            }
+        })
+
         // Observador para la lista de usuarios.
         usuarioViewModel.usuarios.observe(viewLifecycleOwner, Observer { usuarios ->
             usuarios?.let {
@@ -80,6 +93,13 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
         usuarioViewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
             // if (isLoading) { /* Mostrar ProgressBar */ } else { /* Ocultar ProgressBar */ }
         })
+    }
+
+    override fun onShowClick(usuario: Usuario) {
+        usuario.id?.let { userId ->
+            fragmentUsuarioShowDialog.newInstance(usuario.id)
+                .show(parentFragmentManager, "dialog_usuario_show")
+        }
     }
 
     override fun onEditClick(usuario: Usuario) {

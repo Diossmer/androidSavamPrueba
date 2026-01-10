@@ -17,10 +17,9 @@ interface UsuariosServices {
     @POST("usuarios")
     suspend fun storeUsuario(@Body usuario: UsuarioRequest): Response<Usuario> // Recibes un Usuario, pero envías un UsuarioRequest
     @GET("usuarios/{id}")
-    suspend fun getComments(@Path("id") id: String): Response<MutableList<Usuario>>
+    suspend fun showUsuario(@Path("id") id: String): Response<Usuario>
     @PUT("usuarios/{id}")
     suspend fun updateUsuario(@Path("id") id: String, @Body usuario: UsuarioRequest): Response<Usuario>
-    //...
     @PATCH("usuarios/{id}")
     suspend fun patchPost(@Path("id") id: String, @Body usuario: UsuarioRequest): Response<Usuario>
     @DELETE("usuarios/{id}")

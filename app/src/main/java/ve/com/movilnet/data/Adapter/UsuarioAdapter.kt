@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ve.com.movilnet.R
+import ve.com.movilnet.ui.Fragments.fragmentUsuarioShowDialog
 import ve.com.savam.data.models.Usuario
 
 class UsuarioAdapter(
@@ -21,6 +22,7 @@ class UsuarioAdapter(
      */
     // Interface para manejar los clics
     interface OnUsuarioClickListener {
+        fun onShowClick(usuario: Usuario)
         fun onEditClick(usuario: Usuario)
         fun onDeleteClick(usuario: Usuario)
     }
@@ -37,6 +39,7 @@ class UsuarioAdapter(
         val editButton: Button = itemView.findViewById(R.id.btn_editar)
         val deleteButton: Button =
             itemView.findViewById(R.id.btn_eliminar) // Necesitarás añadir este botón
+        val mostrarButton: Button = itemView.findViewById(R.id.btn_mostrar)
     }
 
     // Crea una nueva vista (invocado por el layout manager).
@@ -72,6 +75,10 @@ class UsuarioAdapter(
         //holder.editButton.setOnClickListener {
         // Lógica para editar el usuario en la posición 'position'
         //}
+        holder.mostrarButton.setOnClickListener {
+            listener.onShowClick(usuario)
+        }
+
         holder.editButton.setOnClickListener {
             listener.onEditClick(usuario)
         }
