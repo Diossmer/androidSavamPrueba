@@ -83,6 +83,7 @@ class UsuarioDialogFragment : DialogFragment() {
             rolesAdapter.notifyDataSetChanged()
 
             // Si estamos editando, pre-seleccionar el rol del usuario
+            // Obtiene el primer rol de la lista, si existe.
             usuarioToEdit?.roles?.let { rolActual ->
                 val position = rolesList.indexOfFirst { it.id == rolActual.id }
                 if (position != -1) {
@@ -148,7 +149,8 @@ class UsuarioDialogFragment : DialogFragment() {
                 (spinnerRoles.selectedView as? TextView)?.error = "Selecciona un rol"
                 return@setOnClickListener
             }
-            val selectedRole = rolesList[selectedRolePosition]
+            // Obtienes el objeto Rol completo seleccionado en el Spinner
+            val selectedRoleObject = rolesList[selectedRolePosition]
 
             val usuarioData = Usuario(
                 id = usuarioToEdit?.id,
@@ -156,14 +158,17 @@ class UsuarioDialogFragment : DialogFragment() {
                 apellido = apellido.text.toString(),
                 cedula = cedula.text.toString(),
                 correo = correo.text.toString(),
-                // Asegurarse de no enviar una contraseña vacía si no se modifica
                 password = if (password.text.isNotBlank()) password.text.toString() else null,
-                roles = selectedRole, // Adjuntamos el objeto Rol completo
-                // ... otros campos
+
+                // SOLUCIÓN: Adjuntamos el objeto 'Roles' completo.
+                // Ya no es una lista.
+                roles = selectedRoleObject,
+
                 oficina = "Movilnet",
                 estado = "activo"
             )
 
+            // Llamas al ViewModel con el objeto 'Usuario' correcto.
             if (usuarioToEdit == null) {
                 viewModel.agregarUsuario(usuarioData)
             } else {

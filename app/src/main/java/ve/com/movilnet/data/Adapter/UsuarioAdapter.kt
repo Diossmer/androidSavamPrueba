@@ -51,12 +51,23 @@ class UsuarioAdapter(
     override fun onBindViewHolder(holder: UsuarioViewHolder, position: Int) {
         val usuario = usuarios[position]
 
+        // LA SOLUCIÓN: Obtener el primer rol de la lista de forma segura
+        val rolDelUsuario = usuario.roles
+
         // Asigna los datos del usuario a los TextViews.
         holder.idTextView.text = usuario.id ?: "N/A"
         holder.nombreTextView.text = usuario.nombre ?: "Sin nombre"
         holder.apellidoTextView.text = usuario.apellido ?: "Sin apellido"
         holder.correoTextView.text = usuario.correo ?: "Sin correo"
 
+        /*
+        // Ahora, si en el futuro quieres mostrar el nombre del rol, puedes hacerlo así:
+        // holder.rolTextView.text = rolDelUsuario?.nombre ?: "Sin rol asignado"
+        // Esto es solo un ejemplo. No es necesario si no tienes un TextView para el rol.
+
+        // El resto de tu código ya es correcto y no necesita cambios.
+        // Utiliza el objeto 'usuario' completo para los listeners.
+        */
         // Aquí puedes añadir listeners para los botones de editar/eliminar
         //holder.editButton.setOnClickListener {
         // Lógica para editar el usuario en la posición 'position'

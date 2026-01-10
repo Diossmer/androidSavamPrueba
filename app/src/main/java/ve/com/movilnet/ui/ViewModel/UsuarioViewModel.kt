@@ -1,10 +1,12 @@
 package ve.com.movilnet.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import ve.com.movilnet.data.Model.UsuarioRequest
 import ve.com.movilnet.utils.RetrofitClient
 import ve.com.savam.data.models.Roles
 import ve.com.savam.data.models.Usuario
@@ -66,7 +68,36 @@ class UsuarioViewModel : ViewModel() {
     fun agregarUsuario(usuario: Usuario) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.usuariosServices.storeUsuario(usuario)
+                // LA SOLUCIÓN: Obtener el primer elemento de la lista y LUEGO su id.
+                // Igual que en `actualizarUsuario`.
+                val rolId = usuario.roles?.id
+
+                // Esta verificación ahora funcionará correctamente.
+                if (rolId == null) {
+                    _errorMessage.value = "Error: El rol seleccionado no es válido."
+                    return@launch
+                }
+
+                // Creamos el objeto UsuarioRequest
+                val requestRequest = UsuarioRequest(
+                    id = null,
+                    nombre = usuario.nombre,
+                    apellido = usuario.apellido,
+                    cedula = usuario.cedula,
+                    correo = usuario.correo,
+                    password = usuario.password,
+                    oficina = usuario.oficina,
+                    estado = usuario.estado,
+                    // Usamos el `rolId` que obtuvimos de la lista.
+                    roles = listOf(rolId)
+                )
+
+                // ¡OJO! La API al CREAR devuelve un 'Usuario' con "roles" como String.
+                // Esto fallará la deserialización con Gson.
+                // La solución ideal es pedir al backend que la respuesta al crear sea consistente
+                // y devuelva el objeto rol completo.
+                val response = RetrofitClient.usuariosServices.storeUsuario(requestRequest)
+
                 if (response.isSuccessful) {
                     fetchUsuarios() // Refresca la lista después de agregar
                 } else {
@@ -80,12 +111,29 @@ class UsuarioViewModel : ViewModel() {
 
     fun actualizarUsuario(usuario: Usuario) {
         viewModelScope.launch {
-            if (usuario.id == null) {
-                _errorMessage.value = "Error: ID de usuario no puede ser nulo para actualizar."
-                return@launch
-            }
             try {
-                val response = RetrofitClient.usuariosServices.patchPost(usuario.id, usuario)
+                // Obtén el primer rol de la lista. Si no hay, no se podrá actualizar.
+                val rolId = usuario.roles?.id
+                if (usuario.id == null || rolId == null) {
+                    _errorMessage.value = "Error: Faltan datos para actualizar (ID de usuario o rol)."
+                    return@launch
+                }
+
+                // ----> TRANSFORMACIÓN CLAVE <----
+                val usuarioRequest = UsuarioRequest(
+                    id = usuario.id,
+                    nombre = usuario.nombre,
+                    apellido = usuario.apellido,
+                    cedula = usuario.cedula,
+                    correo = usuario.correo,
+                    password = usuario.password, // El backend debe ignorar esto si es nulo
+                    oficina = usuario.oficina,
+                    estado = usuario.estado,
+                    roles = listOf(rolId) // Solo el ID en una lista
+                )
+
+                val response = RetrofitClient.usuariosServices.updateUsuario(usuario.id, usuarioRequest)
+
                 if (response.isSuccessful) {
                     fetchUsuarios() // Refresca la lista después de actualizar
                 } else {

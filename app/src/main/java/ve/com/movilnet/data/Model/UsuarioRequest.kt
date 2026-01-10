@@ -1,9 +1,8 @@
-package ve.com.savam.data.models
+package ve.com.movilnet.data.Model
 
 import com.google.gson.annotations.SerializedName
 
-//Model
-data class Usuario(
+data class UsuarioRequest(
     @SerializedName("id") val id: String?,
     @SerializedName("oficina") val oficina: String?,
     @SerializedName("correo") val correo: String?,
@@ -12,5 +11,6 @@ data class Usuario(
     @SerializedName("apellido") val apellido: String?,
     @SerializedName("cedula") val cedula: String?,
     @SerializedName("password") val password: String?,
-    @SerializedName("roles") val roles: Roles?
+    // LA CLAVE: El backend espera un campo "roles" que sea una Lista de Strings (los IDs)
+    @SerializedName("roles") val roles: List<String>?
 )

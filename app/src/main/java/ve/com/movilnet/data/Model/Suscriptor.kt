@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 import java.util.Date
 
 data class Suscriptor(
-    @SerializedName("_id") val id: String,
+    @SerializedName("id") val id: String,
     @SerializedName("numeroTelefono") val numeroTelefono: String?,
     @SerializedName("estatus") val estatus: String?,
     @SerializedName("operador") val operador: String?,
