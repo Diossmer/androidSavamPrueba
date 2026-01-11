@@ -11,7 +11,7 @@ import ve.com.movilnet.data.Services.UsuariosServices
 object RetrofitClient {
     // URL base de tu API.
     // Si estás probando en el emulador de Android, 10.0.2.2 apunta al localhost de tu máquina.
-    // private const val BASE_URL = "http://192.168.1.101:3000/api/" // <-- ¡CAMBIA ESTA URL POR LA DE TU API!
+    //private const val BASE_URL = "http://192.168.1.101:3000/api/" // <-- ¡CAMBIA ESTA URL POR LA DE TU API!
     private const val BASE_URL = "http://10.0.2.2:3000/api/"
 
     // 1. Crea el interceptor de logs

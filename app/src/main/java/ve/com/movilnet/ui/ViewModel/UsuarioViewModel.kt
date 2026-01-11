@@ -28,64 +28,85 @@ class UsuarioViewModel : ViewModel() {
     // --- NUEVO LIVE DATA PARA EL USUARIO SELECCIONADO ---
     private val _usuarioSeleccionado = MutableLiveData<Usuario?>()
     val usuarioSeleccionado: LiveData<Usuario?> = _usuarioSeleccionado
-    // --- AÑADE ESTO: LiveData para el usuario que ha iniciado sesión ---
+    // --- LiveData para el usuario que ha iniciado sesión ---
     private val _loggedInUser = MutableLiveData<Usuario?>()
     val loggedInUser: LiveData<Usuario?> = _loggedInUser
 
-    // Esta función es la que establece quién es el usuario actual.
-    // Deberías llamarla después de un inicio de sesión exitoso.
-    fun setLoggedInUser(usuario: Usuario) {
+
+    /**
+     * Establece el usuario que ha iniciado sesión.
+     * Deberías llamar a esta función después de un login exitoso.
+     */
+    fun setLoggedInUser(usuario: Usuario?) {
         _loggedInUser.value = usuario
     }
-    // Llama a esta función para simular la carga del usuario actual
-    // En una app real, esta función obtendría el usuario guardado en SharedPreferences o una base de datos.
-    fun loadCurrentUser() {
-        viewModelScope.launch {
-            // ESTA ES LA LÓGICA QUE DEBES ADAPTAR
-            // Por ahora, para que funcione, vamos a simular que el usuario actual
-            // es el primer administrador que encontremos en la lista.
-            // Si no hay lista, no hacemos nada.
-            val userList = _usuarios.value
-            if (userList.isNullOrEmpty()) {
-                // Si la lista de usuarios aún no se ha cargado, podríamos esperar o no hacer nada.
-                // Por ahora, no hacemos nada.
-                return@launch
-            }
 
-            // Buscamos un usuario con rol de "Administrador" para simular.
-            // Cambia "Administrador" por el nombre del rol que uses.
-            val adminUser = userList.find { it.roles?.nombre == "Administrador" }
-
-            _loggedInUser.value = adminUser
+    /**
+     * Comprueba si el usuario logueado tiene el rol de "Administrador".
+     * El nombre 'Administrador' debe coincidir exactamente con el que viene de la API.
+     */
+    private fun esUsuarioAdministrador(): Boolean {
+        // Obtiene el usuario logueado del LiveData.
+        val usuarioActual = _loggedInUser.value
+        if (usuarioActual == null) {
+            Log.d("AuthCheck", "No hay usuario logueado para verificar el rol.")
+            return false // Si no hay nadie logueado, no es admin.
         }
+
+        // --- CORRECCIÓN ---
+        // 'usuarioActual.roles' es un objeto Roles?, no una lista.
+        // Accedemos a su propiedad 'nombre' de forma segura con '?.'
+        val esAdmin = usuarioActual.roles?.nombre?.equals("Administrador", ignoreCase = true) == true
+
+        Log.d("AuthCheck", "Usuario: ${usuarioActual.nombre}, ¿Es Admin? $esAdmin")
+        return esAdmin
     }
+
 
     // Llama a esta función para cargar la lista de usuarios.
     fun fetchUsuarios() {
         // viewModelScope se encarga de cancelar la corrutina si el ViewModel se destruye.
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                // Llama al método de la API definido en UsuariosServices.
-                val response = RetrofitClient.usuariosServices.listUsuarios()
-                if (response.isSuccessful) {
-                    // Si la respuesta es exitosa, actualiza el LiveData.
-                    _usuarios.value = response.body()
-                    // --- IMPORTANTE ---
-                    // Una vez que tenemos la lista de usuarios, cargamos al usuario actual.
-                    loadCurrentUser()
-                } else {
-                    // Si hay un error en la respuesta, notifícalo.
-                    _errorMessage.value = "Error: ${response.code()} - ${response.message()}"
+
+            // --- ¡AQUÍ ESTÁ LA LÓGICA DE VALIDACIÓN! ---
+            if (esUsuarioAdministrador()) {
+                // Si es Administrador, busca todos los usuarios desde la API.
+                Log.d("fetchUsuarios", "El usuario es Administrador. Obteniendo lista completa.")
+                try {
+                    // Llama al método de la API definido en UsuariosServices.
+                    val response = RetrofitClient.usuariosServices.listUsuarios()
+                    if (response.isSuccessful) {
+                        // Si la respuesta es exitosa, actualiza el LiveData.
+                        _usuarios.value = response.body()
+                    } else {
+                        // Si hay un error en la respuesta, notifícalo.
+                        _errorMessage.value = "Error: ${response.code()} - ${response.message()}"
+                    }
+                } catch (e: Exception) {
+                    // Si ocurre una excepción (ej: sin conexión), notifícalo.
+                    _errorMessage.value = "Fallo en la conexión: ${e.message}"
                 }
-            } catch (e: Exception) {
-                // Si ocurre una excepción (ej: sin conexión), notifícalo.
-                _errorMessage.value = "Fallo en la conexión: ${e.message}"
+            } else {
+                // Si NO es Administrador, muestra solo su propio perfil en la lista.
+                Log.d("fetchUsuarios", "El usuario NO es Administrador. Mostrando solo su perfil.")
+                val usuarioActual = _loggedInUser.value
+                if (usuarioActual != null) {
+                    // Crea una lista que contiene únicamente al usuario logueado.
+                    _usuarios.value = listOf(usuarioActual)
+                } else {
+                    // Si por alguna razón no hay un usuario logueado, la lista estará vacía.
+                    _usuarios.value = emptyList()
+                    _errorMessage.value = "No se pudo obtener la información del usuario."
+                    Log.d("fetchUsuarios", "Error: Se intentó obtener usuarios sin estar logueado.")
+                }
             }
+
             _isLoading.value = false
         }
     }
 
+    // ... (El resto de tus funciones: fetchRoles, agregarUsuario, etc., se mantienen igual)
     fun fetchRoles() {
         viewModelScope.launch {
             try {

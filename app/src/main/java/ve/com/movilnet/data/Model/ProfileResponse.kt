@@ -1,10 +1,8 @@
-package ve.com.savam.data.models
+package ve.com.movilnet.data.Model
 
-import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
 
-//Model
-data class Usuario(
+data class ProfileResponse(
     @SerializedName("id") val id: String?,
     @SerializedName("oficina") val oficina: String?,
     @SerializedName("correo") val correo: String?,
@@ -13,8 +11,5 @@ data class Usuario(
     @SerializedName("apellido") val apellido: String?,
     @SerializedName("cedula") val cedula: String?,
     @SerializedName("password") val password: String?,
-    //@SerializedName("roles") val roles: Roles?
-    // --- ¡ANOTACIÓN CLAVE! ---
-    @JsonAdapter(RolesTypeAdapter::class)
-    val roles: Roles?, // Se queda como un objeto Roles?
+    @SerializedName("roles") val roles: List<String>?
 )

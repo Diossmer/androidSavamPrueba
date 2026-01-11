@@ -16,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import ve.com.movilnet.R
 import ve.com.movilnet.data.Adapter.UsuarioAdapter
+import ve.com.movilnet.data.Authentication.SessionManager
 import ve.com.movilnet.ui.viewmodel.UsuarioViewModel
 import ve.com.savam.data.models.Usuario
 
@@ -51,6 +52,9 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
         // Observa los cambios en los datos y el estado de la UI.
         observeViewModel()
 
+        // Llama a la función que configura al usuario logueado
+        setupLoggedInUser()
+
         // Pide al ViewModel que cargue los datos.
         usuarioViewModel.fetchUsuarios()
     }
@@ -61,6 +65,26 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
         usuarioAdapter = UsuarioAdapter(mutableListOf(), this)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = usuarioAdapter
+    }
+
+    /**
+     * Esta función toma el papel de "onProfileSuccess".
+     * Se ejecuta al iniciar la pantalla principal después del login.
+     */
+    private fun setupLoggedInUser() {
+        // 1. Recupera el usuario desde SessionManager
+        val sessionManager = SessionManager(requireContext())
+        val usuarioLogueado = sessionManager.getUser()
+
+        if (usuarioLogueado != null) {
+            // 2. ¡AQUÍ ES DONDE LO GUARDAS EN EL VIEWMODEL!
+            // Esta es la conexión que buscábamos.
+            usuarioViewModel.setLoggedInUser(usuarioLogueado)
+            Log.d("PROFILE_SETUP", "Usuario '${usuarioLogueado.nombre}' establecido en ViewModel.")
+        } else {
+            Log.e("PROFILE_SETUP", "Error: No se pudo recuperar el usuario de la sesión.")
+            // Aquí podrías cerrar la sesión y volver al login si el usuario es nulo.
+        }
     }
 
     private fun observeViewModel() {

@@ -2,137 +2,94 @@ package ve.com.movilnet.data.Authentication
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.google.gson.Gson
+import ve.com.savam.data.models.Usuario
 
+// Hacemos el constructor privado para forzar el uso del método `getInstance`.
 class SessionManager(context: Context) {
-    private val sharedPreferences: SharedPreferences
-    private val editor: SharedPreferences.Editor
-
-    init {
-        sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        editor = sharedPreferences.edit()
-    }
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    // Se crea una única instancia del editor aquí
+    //private val editor: SharedPreferences.Editor = sharedPreferences.edit()
 
     // Claves para guardar los valores
     companion object {
         private const val PREFS_NAME = "session_prefs"
-        private const val KEY_AUTH_TOKEN = "token"
-        private const val KEY_USER_ROLE = "role"
-        private const val KEY_USER_NAME = "USER_NAME"
-        private const val KEY_CORREO = "USER_EMAIL"
+        const val KEY_AUTH_TOKEN = "token"
+        const val KEY_USER_ROLE = "role"
+        const val KEY_USER_NAME = "USER_NAME"
+        const val KEY_CORREO = "USER_EMAIL"
+        const val KEY_JSON = "USER_JSON"
+
+        // 1. Instancia Singleton Volátil
+        //    @Volatile garantiza que los cambios en la instancia sean visibles para todos los hilos.
+        @Volatile
+        private var INSTANCE: SessionManager? = null
+
+        // 2. Método para obtener la instancia (Singleton)
+        //    Este es el único punto de entrada para obtener el SessionManager.
+        fun getInstance(context: Context): SessionManager {
+            return INSTANCE ?: synchronized(this) {
+                // Usamos el constructor privado aquí
+                val instance = SessionManager(context.applicationContext)
+                INSTANCE = instance
+                instance
+            }
+        }
     }
 
-    /**
-     * Guarda el token de autenticación en SharedPreferences.
-     * @param token El token a guardar.
-     */
+    // --- MÉTODOS PARA GUARDAR DATOS ---
+
+    fun saveUser(usuarioJson: String) {
+        sharedPreferences.edit().putString(KEY_JSON, usuarioJson).apply()
+    }
+
     fun saveAuthToken(token: String) {
-        editor.putString(KEY_AUTH_TOKEN, token)
-        editor.apply() // Guarda los cambios de forma asíncrona.
+        sharedPreferences.edit().putString(KEY_AUTH_TOKEN, token).apply()
     }
 
-    /**
-     * Recupera el token de autenticación desde SharedPreferences.
-     * @return El token guardado, o null si no existe.
-     */
+    fun saveUserRole(role: String?) {
+        sharedPreferences.edit().putString(KEY_USER_ROLE, role).apply()
+    }
+
+    fun saveUserName(name: String?) {
+        sharedPreferences.edit().putString(KEY_USER_NAME, name).apply()
+    }
+
+    fun saveUserEmail(correo: String?) {
+        sharedPreferences.edit().putString(KEY_CORREO, correo).apply()
+    }
+
+    // --- MÉTODOS PARA RECUPERAR DATOS ---
+
     fun fetchAuthToken(): String? {
         return sharedPreferences.getString(KEY_AUTH_TOKEN, null)
     }
 
-    /**
-     * Guarda el rol del usuario.
-     * @param role El rol a guardar (ej. "admin", "user").
-     */
-    fun saveUserRole(role: String) {
-        editor.putString(KEY_USER_ROLE, role)
-        editor.apply()
-    }
-
-    /**
-     * Recupera el rol del usuario.
-     * @return El rol guardado, o null si no existe.
-     */
     fun fetchUserRole(): String? {
         return sharedPreferences.getString(KEY_USER_ROLE, null)
-    }
-
-    /**
-     * Borra el token de autenticación para cerrar la sesión.
-     */
-    fun logout() {
-        editor.remove(KEY_AUTH_TOKEN)
-        editor.remove(KEY_USER_ROLE)
-        editor.apply()
-    }
-
-    fun saveUserName(name: String) {
-        editor.putString(KEY_USER_NAME, name).apply()
     }
 
     fun fetchUserName(): String? {
         return sharedPreferences.getString(KEY_USER_NAME, null)
     }
 
-    fun saveUserEmail(correo: String?) {
-        editor.putString(KEY_CORREO, correo).apply()
-    }
-
     fun fetchUserEmail(): String? {
         return sharedPreferences.getString(KEY_CORREO, null)
     }
+
+    fun getUser(): Usuario? {
+        val usuarioJson = sharedPreferences.getString(KEY_JSON, null)
+        return if (usuarioJson != null) {
+            Gson().fromJson(usuarioJson, Usuario::class.java)
+        } else {
+            null
+        }
+    }
+
+    // --- CERRAR SESIÓN ---
+    fun logout() {
+        // .clear() borra todas las preferencias de una vez
+        sharedPreferences.edit().clear().apply()
+    }
 }
-/*
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-
-// Extensión para crear una instancia de DataStore a nivel de aplicación (singleton)
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "MyAppPrefs")
-
-/**
- * Clase moderna para gestionar la sesión del usuario usando Jetpack DataStore.
- * Es completamente asíncrona y segura para el hilo principal.
- *
- * @param context El contexto de la aplicación.
- */
-class SessionManager(private val context: Context) {
-
-    // Define una clave para guardar el token. Es como el nombre de la columna en una base de datos.
-    private object PreferencesKeys {
-        val USER_TOKEN = stringPreferencesKey("token")
-    }
-
-    /**
-     * Guarda el token de autenticación de forma asíncrona.
-     * Esta función es 'suspend', por lo que debe ser llamada desde una Coroutine.
-     */
-    suspend fun saveAuthToken(token: String) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.USER_TOKEN] = token
-        }
-    }
-
-    /**
-     * Recupera el token de autenticación como un Flow.
-     * Un Flow emite valores cada vez que el token cambia, permitiendo que tu UI reaccione automáticamente.
-     */
-    val authTokenFlow: Flow<String?> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.USER_TOKEN]
-        }
-
-    /**
-     * Recupera el token actual una sola vez.
-     * Ideal para usar en interceptors de red donde solo necesitas el valor instantáneo.
-     * Esta función es 'suspend'.
-     */
-    suspend fun fetchCurrentAuthToken(): String? {
-        // .first() toma el primer valor emitido por el Flow y luego cancela la colección.
-        return authTokenFlow.first()
-    }
-}*/
