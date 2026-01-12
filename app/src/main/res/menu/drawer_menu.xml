@@ -10,9 +10,11 @@
             android:icon="@drawable/ic_consultar"
             android:title="@string/numeroConsultar"/>
     </group>
-    <item android:title="@string/configuration"
-        android:icon="@drawable/ic_configuration">
+    <item android:title="@string/configuration" android:icon="@drawable/ic_configuration">
         <menu>
+            <item android:id="@+id/nav_cambioContrasena"
+                android:icon="@drawable/ic_contrasena"
+                android:title="@string/contraseña_update_nav"/>
             <item android:id="@+id/nav_salir"
                 android:icon="@drawable/ic_logout"
                 android:title="@string/logout"/>

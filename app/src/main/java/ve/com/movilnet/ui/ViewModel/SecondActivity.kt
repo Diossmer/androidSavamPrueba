@@ -17,6 +17,7 @@ import com.google.android.material.navigation.NavigationView
 import ve.com.movilnet.MainActivity
 import ve.com.movilnet.R
 import ve.com.movilnet.data.Authentication.SessionManager
+import ve.com.movilnet.ui.Fragments.ContrasenaUpdateFragment
 import ve.com.movilnet.ui.Fragments.FragmentNumerosConsulta
 import ve.com.movilnet.ui.Fragments.FragmentUsuarios
 
@@ -103,6 +104,13 @@ class SecondActivity : AppCompatActivity() {
                     true
                 }
 
+                R.id.nav_cambioContrasena -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, ContrasenaUpdateFragment()).commit()
+                    drawerLayout.closeDrawers()
+                    true
+                }
+
                 else -> false // El evento no fue manejado
             }
         }
@@ -154,29 +162,33 @@ class SecondActivity : AppCompatActivity() {
         // Obtenemos los ítems específicos que queremos mostrar/ocultar por su ID
         val adminItem = menu.findItem(R.id.nav_usuario)
         val userProfileItem = menu.findItem(R.id.nav_consultar)
-
+        val contrasenaUpdate = menu.findItem(R.id.nav_cambioContrasena)
         // Lógica para mostrar/ocultar ítems
         when (userRole) {
             "Administrador" -> {
                 adminItem?.isVisible = true
+                contrasenaUpdate.isVisible = false
                 userProfileItem?.isVisible = false
             }
 
             "Agente" -> {
                 // El usuario normal no ve el panel de admin
                 adminItem?.isVisible = false
+                contrasenaUpdate.isVisible = true
                 userProfileItem?.isVisible = true
             }
 
             "Moderador" -> {
                 // El usuario normal no ve el panel de agente
                 adminItem?.isVisible = true
+                contrasenaUpdate.isVisible = true
                 userProfileItem?.isVisible = false
             }
 
             else -> {
                 // Rol desconocido o nulo, ocultar todo como medida de seguridad
                 adminItem?.isVisible = false
+                contrasenaUpdate.isVisible = false
                 userProfileItem?.isVisible = false
                 // Aquí podrías incluso cerrar la sesión y redirigir al login
             }

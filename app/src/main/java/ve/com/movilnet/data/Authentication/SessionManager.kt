@@ -2,9 +2,9 @@ package ve.com.movilnet.data.Authentication
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.google.gson.Gson
 import ve.com.movilnet.utils.GsonProvider
 import ve.com.savam.data.models.Usuario
+import androidx.core.content.edit
 
 // Hacemos el constructor privado para forzar el uso del método `getInstance`.
 class SessionManager(context: Context) {
