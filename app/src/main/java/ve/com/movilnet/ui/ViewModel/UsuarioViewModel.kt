@@ -10,14 +10,14 @@ import ve.com.movilnet.data.Model.UsuarioRequest
 import ve.com.movilnet.utils.RetrofitClient
 import ve.com.savam.data.models.Roles
 import ve.com.savam.data.models.Usuario
+import kotlin.text.filter
+import kotlin.text.lowercase
 
 class UsuarioViewModel : ViewModel() {
-
     // LiveData privado y mutable, solo el ViewModel puede cambiar su valor.
     private val _usuarios = MutableLiveData<List<Usuario>>()
     // LiveData público e inmutable, la vista solo puede observar sus cambios.
     val usuarios: LiveData<List<Usuario>> = _usuarios
-
     // LiveData para manejar errores o estados de carga.
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
@@ -31,7 +31,75 @@ class UsuarioViewModel : ViewModel() {
     // --- LiveData para el usuario que ha iniciado sesión ---
     private val _loggedInUser = MutableLiveData<Usuario?>()
     val loggedInUser: LiveData<Usuario?> = _loggedInUser
+    // --- Lista para guardar la fuente de datos original ---
+    private var listaCompletaDeUsuarios: List<Usuario> = emptyList()
 
+
+    // --- 1. FUNCIÓN PÚBLICA PARA CARGAR DATOS ---
+    /**
+     * Esta es la función que llamas desde el Fragment.
+     * Carga la lista completa de la API y luego aplica los filtros.
+     */
+    fun cargarListaDeUsuarios() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val response = RetrofitClient.usuariosServices.listUsuarios()
+                if (response.isSuccessful) {
+                    // Guarda la lista completa en nuestra variable privada. ¡Esta es la fuente de verdad!
+                    listaCompletaDeUsuarios = response.body() ?: emptyList()
+                    // Ahora, aplica los filtros iniciales (rol, etc.) sobre esa lista.
+                    aplicarFiltros()
+                } else {
+                    _errorMessage.value = "Error al obtener usuarios: ${response.code()}"
+                    _usuarios.value = emptyList()
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Fallo en la conexión: ${e.message}"
+                _usuarios.value = emptyList()
+            }
+            _isLoading.value = false
+        }
+    }
+
+    // --- 2. FUNCIÓN PÚBLICA PARA BUSCAR ---
+    /**
+     * Filtra la lista que ya está en memoria. No llama a la API.
+     */
+    fun buscarUsuario(query: String) {
+        aplicarFiltros(query)
+    }
+
+    // --- 3. LÓGICA CENTRAL DE FILTRADO (PRIVADA) ---
+    /**
+     * Aplica TODOS los filtros (rol y búsqueda) a la `listaCompletaDeUsuarios`.
+     */
+    private fun aplicarFiltros(queryDeBusqueda: String = "") {
+        // Empezamos siempre desde la lista completa y sin tocar
+        var listaFiltrada = listaCompletaDeUsuarios
+        val usuarioActual = _loggedInUser.value
+
+        // Filtro 1: Por Rol (la lógica que ya tenías en fetchUsuarios)
+        if (!esUsuarioAdministrador(usuarioActual)) {
+            // Si no es admin, quitamos a los administradores de la vista.
+            listaFiltrada = listaFiltrada.filter { usuario -> !esUsuarioAdministrador(usuario) }
+        }
+
+        // Filtro 2: Por Término de Búsqueda
+        if (queryDeBusqueda.isNotBlank()) {
+            val queryLower = queryDeBusqueda.lowercase()
+            listaFiltrada = listaFiltrada.filter { usuario ->
+                (usuario.nombre?.lowercase()?.contains(queryLower) == true) ||
+                        (usuario.apellido?.lowercase()?.contains(queryLower) == true) ||
+                        (usuario.cedula?.lowercase()?.contains(queryLower) == true) ||
+                        (usuario.correo?.lowercase()?.contains(queryLower) == true) ||
+                        (usuario.roles?.nombre?.lowercase()?.contains(queryLower) == true)
+            }
+        }
+
+        // Al final, publicamos el resultado en el LiveData que el Fragment observa.
+        _usuarios.postValue(listaFiltrada)
+    }
 
     /**
      * Limpia el LiveData del usuario seleccionado.
@@ -125,19 +193,6 @@ class UsuarioViewModel : ViewModel() {
                     // Manejo de error si hay un problema de conexión.
                     _errorMessage.value = "Fallo en la conexión: ${e.message}"
                 }
-                /*
-                // CASO 2: NO es Administrador (o no hay nadie logueado) -> No visualiza la lista.
-                Log.d("fetchUsuarios", "Usuario NO es Administrador. Mostrando solo su propio perfil.")
-                if (usuarioActual != null) {
-                    // La vista solo mostrará al usuario logueado en la lista.
-                    _usuarios.value = listOf(usuarioActual)
-                } else {
-                    // Si por alguna razón no hay un usuario, la lista estará vacía.
-                    _usuarios.value = emptyList()
-                    _errorMessage.value = "No se pudo obtener la información del usuario."
-                    Log.w("fetchUsuarios", "Se intentó obtener usuarios sin haber iniciado sesión.")
-                }
-                */
             }
 
             // Indica que la operación de carga (exitosa o no) ha finalizado.
@@ -187,13 +242,6 @@ class UsuarioViewModel : ViewModel() {
             }
         }
     }
-
-
-
-
-
-
-
 
     // Dentro de la clase UsuarioViewModel, añade estas funciones:
     fun agregarUsuario(usuario: Usuario) {

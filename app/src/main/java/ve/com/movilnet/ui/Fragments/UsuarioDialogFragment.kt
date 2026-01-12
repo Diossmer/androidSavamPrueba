@@ -18,9 +18,7 @@ import ve.com.savam.data.models.Roles
 import ve.com.savam.data.models.Usuario
 
 class UsuarioDialogFragment : DialogFragment() {
-
     private val viewModel: UsuarioViewModel by activityViewModels()
-
     // 1. DECLARAR LAS VISTAS COMO PROPIEDADES DE LA CLASE
     // Esto es más limpio que declararlas dentro de onViewCreated.
     private lateinit var title: TextView
@@ -32,7 +30,6 @@ class UsuarioDialogFragment : DialogFragment() {
     private lateinit var spinnerRoles: Spinner
     private lateinit var btnGuardar: Button
     private lateinit var btnCancelar: Button
-
     // Propiedades para manejar el estado del diálogo
     private var usuarioToEdit: Usuario? = null
     private lateinit var rolesAdapter: ArrayAdapter<String>

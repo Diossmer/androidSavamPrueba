@@ -1,6 +1,8 @@
 package ve.com.movilnet.ui.Fragments
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
 import ve.com.movilnet.R
 import ve.com.movilnet.data.Adapter.UsuarioAdapter
 import ve.com.movilnet.data.Authentication.SessionManager
@@ -28,6 +31,7 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var fab: FloatingActionButton
     private lateinit var nombreTextViewTitulo: TextView
+    private lateinit var searchEditText: TextInputEditText
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,12 +46,16 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
 
         nombreTextViewTitulo = view.findViewById(R.id.nombreTextView)
         fab = view.findViewById(R.id.fabAgregarUsuario)
+        searchEditText = view.findViewById(R.id.searchEditText) // <-- AÑADIR ESTO: Encuentra el buscador
         fab.setOnClickListener {
             UsuarioDialogFragment.newInstance().show(parentFragmentManager, "dialog_usuario")
         }
 
         // Configura el RecyclerView.
         setupRecyclerView(view)
+
+        // UBICACIÓN DEL CÓDIGO DEL BUSCADOR
+        setupSearch()
 
         // Observa los cambios en los datos y el estado de la UI.
         observeViewModel()
@@ -56,7 +64,22 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
         setupLoggedInUser()
 
         // Pide al ViewModel que cargue los datos.
-        usuarioViewModel.fetchUsuarios()
+        usuarioViewModel.cargarListaDeUsuarios()
+    }
+
+    // --- NUEVA FUNCIÓN PARA LA LÓGICA DEL BUSCADOR ---
+    private fun setupSearch() { // <-- AÑADIR ESTA FUNCIÓN COMPLETA
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Cada vez que el texto cambia, llamamos a la función de búsqueda del ViewModel
+                val query = s.toString()
+                usuarioViewModel.buscarUsuario(query)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     private fun setupRecyclerView(view: View) {
