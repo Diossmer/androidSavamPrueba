@@ -8,7 +8,7 @@ import ve.com.movilnet.data.Model.GenericResponse
 import ve.com.movilnet.data.Model.UpdatePasswordRequest
 
 interface UpdatePasswodServices {
-    @POST("api/update-password")
+    @POST("update-password")
     suspend fun updatePassword(
         @Header("Authorization") token: String,
         @Body request: UpdatePasswordRequest
