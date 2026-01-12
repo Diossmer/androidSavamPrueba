@@ -8,7 +8,7 @@ import ve.com.movilnet.data.Model.ProfileResponse
 import ve.com.savam.data.models.LoginCredentials
 
 interface CredentialsServices {
-
+//repositorio/API
     @POST("login")
     suspend fun loginPost(@Body request: LoginCredentials): Response<LoginResponse>
     @POST("profile")
