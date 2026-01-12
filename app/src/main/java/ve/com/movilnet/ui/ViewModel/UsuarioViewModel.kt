@@ -34,6 +34,14 @@ class UsuarioViewModel : ViewModel() {
 
 
     /**
+     * Limpia el LiveData del usuario seleccionado.
+     * Es crucial llamar a esta función antes de abrir el formulario en modo "Agregar"
+     * o al cerrar el formulario para evitar que datos antiguos se muestren.
+     */
+    fun limpiarUsuarioSeleccionado() {
+        _usuarioSeleccionado.value = null
+    }
+    /**
      * Establece el usuario que ha iniciado sesión.
      * Deberías llamar a esta función después de un login exitoso.
      */

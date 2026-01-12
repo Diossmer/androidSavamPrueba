@@ -55,7 +55,7 @@ class UsuarioAdapter(
         val usuario = usuarios[position]
 
         // LA SOLUCIÓN: Obtener el primer rol de la lista de forma segura
-        val rolDelUsuario = usuario.roles
+        //val rolDelUsuario = usuario.roles
 
         // Asigna los datos del usuario a los TextViews.
         holder.idTextView.text = usuario.id ?: "N/A"

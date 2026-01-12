@@ -11,6 +11,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import ve.com.movilnet.R
 import ve.com.movilnet.ui.viewmodel.UsuarioViewModel
 import ve.com.savam.data.models.Roles
@@ -78,6 +79,14 @@ class UsuarioDialogFragment : DialogFragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // ¡AQUÍ ESTÁ LA SOLUCIÓN!
+        // Limpia el LiveData del usuario seleccionado en el ViewModel.
+        // Esto asegura que si el diálogo se vuelve a abrir en modo "Agregar",
+        // no mostrará los datos del último usuario editado.
+        viewModel.limpiarUsuarioSeleccionado()
+    }
     private fun initializeViews(view: View) {
         // Centralizamos todos los findViewById en un solo lugar.
         title = view.findViewById(R.id.dialogTitle)
