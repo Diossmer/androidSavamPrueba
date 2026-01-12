@@ -145,21 +145,55 @@ class UsuarioViewModel : ViewModel() {
         }
     }
 
-    // ... (El resto de tus funciones: fetchRoles, agregarUsuario, etc., se mantienen igual)
     fun fetchRoles() {
         viewModelScope.launch {
+            _isLoading.value = true // Opcional: puedes manejar un estado de carga para los roles
+
             try {
+                // 1. Obtener la lista COMPLETA de roles desde la API
                 val response = RetrofitClient.rolesServices.listRoles()
+
                 if (response.isSuccessful) {
-                    _roles.value = response.body()
+                    val todosLosRoles = response.body()
+
+                    // 2. Obtener el usuario que ha iniciado sesión
+                    val usuarioActual = _loggedInUser.value
+
+                    // 3. Comprobar si el usuario actual NO es administrador
+                    if (!esUsuarioAdministrador(usuarioActual)) {
+                        // Si NO es Admin (ej: Moderador, Agente), filtramos la lista
+                        Log.d("fetchRoles", "Usuario no es Administrador. Filtrando la lista de roles.")
+                        val rolesFiltrados = todosLosRoles?.filter { rol ->
+                            // Comparamos el nombre del rol, ignorando mayúsculas/minúsculas
+                            !rol.nombre.equals("Administrador", ignoreCase = true)
+                        }
+                        // Asignamos la lista filtrada (sin el rol "Administrador")
+                        _roles.value = rolesFiltrados ?: emptyList()
+                    } else {
+                        // Si ES Admin (o no hay usuario logueado, lo cual es un caso borde),
+                        // mostramos la lista completa de roles.
+                        Log.d("fetchRoles", "Usuario es Administrador. Mostrando todos los roles.")
+                        _roles.value = todosLosRoles?: emptyList()
+                    }
                 } else {
+                    // Manejo de error si la llamada a la API falla
                     _errorMessage.value = "Error al obtener roles: ${response.code()}"
                 }
             } catch (e: Exception) {
+                // Manejo de error de conexión
                 _errorMessage.value = "Fallo de conexión al obtener roles: ${e.message}"
+            } finally {
+                _isLoading.value = false // Finaliza la carga
             }
         }
     }
+
+
+
+
+
+
+
 
     // Dentro de la clase UsuarioViewModel, añade estas funciones:
     fun agregarUsuario(usuario: Usuario) {
