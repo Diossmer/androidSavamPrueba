@@ -19,6 +19,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import ve.com.movilnet.data.Authentication.SessionManager
 import ve.com.movilnet.ui.ViewModel.SecondActivity
+import ve.com.movilnet.utils.GsonProvider
 import ve.com.movilnet.utils.RetrofitClient
 import ve.com.savam.data.models.LoginCredentials
 
@@ -112,11 +113,18 @@ class MainActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val loginResponse = response.body()
                     if (loginResponse?.token != null && loginResponse.usuario != null) {
-                        // 1. Guardar el token (¡esto es lo más importante aquí!)
+                        // --- 1. Guardar el token (¡esto es lo más importante aquí!) ---
                         sessionManager.saveAuthToken(loginResponse.token)
-                        val usuarioJson = Gson().toJson(loginResponse.usuario)
-                        sessionManager.saveUser(usuarioJson) // La función que creamos antes
-                        sessionManager.saveUserRole(loginResponse.usuario.roles) // Guardas el rol para SecondActivity
+
+                        // --- 2. CORRECCIÓN CLAVE: Usar el GsonProvider ---
+                        // Convierte el objeto 'usuario' (que ahora es UsuarioAuthenticaton) a JSON
+                        // usando la instancia de Gson que SÍ conoce tus TypeAdapters.
+                        val usuarioJson = GsonProvider.instance.toJson(loginResponse.usuario)
+                        sessionManager.saveUser(usuarioJson)
+
+                        // --- 3. CORRECCIÓN CLAVE: Guardar el rol correcto ---
+                        // El objeto 'loginResponse.usuario' tiene un campo 'rol' que es un String.
+                        sessionManager.saveUserRole(loginResponse.usuario.roles?.nombre)
                         val nombreCompleto = "${loginResponse.usuario.nombre} ${loginResponse.usuario.apellido}"
                         sessionManager.saveUserName(nombreCompleto)
                         sessionManager.saveUserEmail(loginResponse.usuario.correo) // Guardas el email

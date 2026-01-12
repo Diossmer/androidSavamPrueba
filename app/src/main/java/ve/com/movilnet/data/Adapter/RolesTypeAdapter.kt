@@ -26,43 +26,75 @@ class RolesTypeAdapter : TypeAdapter<Roles>() {
     }
 
     override fun read(reader: JsonReader): Roles? {
-        // --- ¡AQUÍ ESTÁ LA MAGIA! ---
-        // Lógica para leer (convertir de JSON a objeto).
+        // peek() nos deja ver el tipo del siguiente token sin consumirlo.
+        when (reader.peek()) {
 
-        // Si el token es null, devolvemos null
-        if (reader.peek() == JsonToken.NULL) {
-            reader.nextNull()
-            return null
-        }
-
-        // Si el token es un STRING (como "6949b74d15750b560f9dc29d")
-        if (reader.peek() == JsonToken.STRING) {
-            val roleId = reader.nextString()
-            // Creamos un objeto Roles solo con el ID, el resto es nulo.
-            return Roles(id = roleId, nombre = null, descripcion = null, permisos = null)
-        }
-
-        // Si el token es un OBJETO (como {"id": "...", "nombre": "..."})
-        if (reader.peek() == JsonToken.BEGIN_OBJECT) {
-            var id: String? = null
-            var nombre: String? = null
-            var descripcion: String? = null
-
-            reader.beginObject()
-            while (reader.hasNext()) {
-                when (reader.nextName()) {
-                    "id", "_id" -> id = reader.nextString() // Aceptamos 'id' o '_id'
-                    "nombre" -> nombre = reader.nextString()
-                    "descripcion" -> descripcion = reader.nextString()
-                    else -> reader.skipValue() // Ignoramos otros campos
-                }
+            // Si el valor en el JSON es `null`
+            JsonToken.NULL -> {
+                reader.nextNull() // Consumimos el null
+                return null
             }
-            reader.endObject()
-            return Roles(id = id, nombre = nombre, descripcion = descripcion, permisos = null)
-        }
 
-        // Si es algo inesperado, lo ignoramos y devolvemos null
-        reader.skipValue()
-        return null
+            // CASO 1: Cuando la API devuelve solo el ID como un String.
+            // Ejemplo JSON: "roles": "a1b2c3d4-e5f6-..."
+            JsonToken.STRING -> {
+                val roleId = reader.nextString()
+                // Creamos un objeto Roles parcial, solo con el ID.
+                return Roles(id = roleId, nombre = null, descripcion = null, permisos = null)
+            }
+
+            // CASO 2: Cuando la API devuelve el objeto Rol completo.
+            // Ejemplo JSON: "roles": { "id": "...", "nombre": "Moderador", "accion": ["crear"] }
+            JsonToken.BEGIN_OBJECT -> {
+                // Variables locales para ir guardando los valores que encontramos.
+                var id: String? = null
+                var nombre: String? = null
+                var descripcion: String? = null
+                val permisos = mutableListOf<String>() // Lista mutable para los permisos
+
+                reader.beginObject() // Empezamos a leer el objeto
+                while (reader.hasNext()) {
+                    // --- ¡CORRECCIÓN APLICADA AQUÍ! ---
+                    when (reader.nextName()) {
+                        // Si el campo del JSON es "id" o "_id", lo asignamos a nuestra variable `id`.
+                        "id", "_id" -> id = reader.nextString()
+
+                        // Si el campo del JSON es "nombre", lo asignamos a nuestra variable `nombre`.
+                        "nombre" -> nombre = reader.nextString()
+
+                        // Si el campo del JSON es "descripcion", lo asignamos a `descripcion`.
+                        "descripcion" -> descripcion = reader.nextString()
+
+                        // Si el campo del JSON es "accion", leemos el array de permisos.
+                        "accion" -> {
+                            // Es buena práctica verificar si de verdad es un array.
+                            if (reader.peek() == JsonToken.BEGIN_ARRAY) {
+                                reader.beginArray()
+                                while (reader.hasNext()) {
+                                    permisos.add(reader.nextString())
+                                }
+                                reader.endArray()
+                            } else {
+                                // Si "accion" no es un array (ej. es null), lo ignoramos.
+                                reader.skipValue()
+                            }
+                        }
+
+                        // Si encontramos un campo que no nos interesa, lo saltamos.
+                        else -> reader.skipValue()
+                    }
+                }
+                reader.endObject() // Terminamos de leer el objeto
+
+                // Creamos el objeto Roles con los valores correctos que hemos recolectado.
+                return Roles(id, nombre, descripcion, if (permisos.isNotEmpty()) permisos else null)
+            }
+
+            // Si el token es de un tipo inesperado (ni null, ni String, ni Objeto), lo ignoramos.
+            else -> {
+                reader.skipValue()
+                return null
+            }
+        }
     }
 }

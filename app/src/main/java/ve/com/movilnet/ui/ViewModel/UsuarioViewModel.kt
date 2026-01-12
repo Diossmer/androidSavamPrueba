@@ -42,66 +42,97 @@ class UsuarioViewModel : ViewModel() {
     }
 
     /**
-     * Comprueba si el usuario logueado tiene el rol de "Administrador".
-     * El nombre 'Administrador' debe coincidir exactamente con el que viene de la API.
+     * Comprueba si un usuario dado tiene el rol de "Administrador".
+     * Esta función es privada para asegurar que la lógica de validación de roles
+     * se mantenga encapsulada dentro del ViewModel.
+     *
+     * @param usuario El objeto Usuario a verificar.
+     * @return `true` si el usuario no es nulo y su rol es "Administrador", `false` en caso contrario.
      */
-    private fun esUsuarioAdministrador(): Boolean {
-        // Obtiene el usuario logueado del LiveData.
-        val usuarioActual = _loggedInUser.value
-        if (usuarioActual == null) {
-            Log.d("AuthCheck", "No hay usuario logueado para verificar el rol.")
-            return false // Si no hay nadie logueado, no es admin.
+    private fun esUsuarioAdministrador(usuario: Usuario?): Boolean {
+        // Si el usuario que nos pasan es nulo, no puede ser admin.
+        if (usuario == null) {
+            Log.d("AuthCheck", "Chequeo de rol fallido: el objeto usuario es nulo.")
+            return false
         }
 
-        // --- CORRECCIÓN ---
-        // 'usuarioActual.roles' es un objeto Roles?, no una lista.
-        // Accedemos a su propiedad 'nombre' de forma segura con '?.'
-        val esAdmin = usuarioActual.roles?.nombre?.equals("Administrador", ignoreCase = true) == true
+        // Comparamos el nombre del rol de forma segura, ignorando mayúsculas/minúsculas.
+        val esAdmin = usuario.roles?.nombre?.equals("Administrador", ignoreCase = true) == true
 
-        Log.d("AuthCheck", "Usuario: ${usuarioActual.nombre}, ¿Es Admin? $esAdmin")
+        Log.d(
+            "AuthCheck",
+            "Chequeando rol para: ${usuario.nombre}, Rol: '${usuario.roles?.nombre}', ¿Es Admin? -> $esAdmin"
+        )
         return esAdmin
     }
 
-
-    // Llama a esta función para cargar la lista de usuarios.
+    /**
+     * Obtiene la lista de usuarios según el rol del usuario que ha iniciado sesión.
+     * - Si es Administrador, obtiene la lista completa desde la API.
+     * - Si no es Administrador, solo muestra el perfil del propio usuario.
+     */
     fun fetchUsuarios() {
-        // viewModelScope se encarga de cancelar la corrutina si el ViewModel se destruye.
         viewModelScope.launch {
             _isLoading.value = true
 
-            // --- ¡AQUÍ ESTÁ LA LÓGICA DE VALIDACIÓN! ---
-            if (esUsuarioAdministrador()) {
-                // Si es Administrador, busca todos los usuarios desde la API.
-                Log.d("fetchUsuarios", "El usuario es Administrador. Obteniendo lista completa.")
+            val usuarioActual = _loggedInUser.value
+
+            // --- VALIDACIÓN DE ROL DE ADMINISTRADOR ---
+            // Se pasa el usuario actual a la función de validación.
+            if (esUsuarioAdministrador(usuarioActual)) {
+                // CASO 1: Es Administrador -> Visualiza la lista completa.
+                Log.d("fetchUsuarios", "Usuario es Administrador. Obteniendo lista completa de la API.")
                 try {
-                    // Llama al método de la API definido en UsuariosServices.
                     val response = RetrofitClient.usuariosServices.listUsuarios()
                     if (response.isSuccessful) {
-                        // Si la respuesta es exitosa, actualiza el LiveData.
+                        // La vista que observa 'usuarios' se actualizará para mostrar a todos.
                         _usuarios.value = response.body()
                     } else {
-                        // Si hay un error en la respuesta, notifícalo.
-                        _errorMessage.value = "Error: ${response.code()} - ${response.message()}"
+                        _errorMessage.value = "Error al obtener usuarios: ${response.code()} - ${response.message()}"
                     }
                 } catch (e: Exception) {
-                    // Si ocurre una excepción (ej: sin conexión), notifícalo.
+                    // Captura excepciones como falta de conexión a internet.
                     _errorMessage.value = "Fallo en la conexión: ${e.message}"
                 }
             } else {
-                // Si NO es Administrador, muestra solo su propio perfil en la lista.
-                Log.d("fetchUsuarios", "El usuario NO es Administrador. Mostrando solo su perfil.")
-                val usuarioActual = _loggedInUser.value
+                // CASO 2: NO es Administrador (ej: Moderador, Agente, etc.)
+                Log.d("fetchUsuarios", "Usuario NO es Administrador. Obteniendo lista y filtrando admins.")
+                try {
+                    // 1. Llama a la API para obtener la lista completa de usuarios.
+                    val response = RetrofitClient.usuariosServices.listUsuarios()
+                    if (response.isSuccessful) {
+                        // 2. Filtra la lista para excluir a los administradores.
+                        //    Usamos la misma función `esUsuarioAdministrador` que ya tienes.
+                        val listaFiltrada = response.body()?.filter { usuario ->
+                            !esUsuarioAdministrador(usuario)
+                        }
+
+                        // 3. Asigna la lista ya filtrada al LiveData.
+                        _usuarios.value = listaFiltrada?: emptyList()
+                    } else {
+                        // Manejo de error si la llamada a la API falla.
+                        _errorMessage.value = "Error al obtener usuarios: ${response.code()} - ${response.message()}"
+                    }
+                } catch (e: Exception) {
+                    // Manejo de error si hay un problema de conexión.
+                    _errorMessage.value = "Fallo en la conexión: ${e.message}"
+                }
+                /*
+                // CASO 2: NO es Administrador (o no hay nadie logueado) -> No visualiza la lista.
+                Log.d("fetchUsuarios", "Usuario NO es Administrador. Mostrando solo su propio perfil.")
                 if (usuarioActual != null) {
-                    // Crea una lista que contiene únicamente al usuario logueado.
+                    // La vista solo mostrará al usuario logueado en la lista.
                     _usuarios.value = listOf(usuarioActual)
                 } else {
-                    // Si por alguna razón no hay un usuario logueado, la lista estará vacía.
+                    // Si por alguna razón no hay un usuario, la lista estará vacía.
                     _usuarios.value = emptyList()
                     _errorMessage.value = "No se pudo obtener la información del usuario."
-                    Log.d("fetchUsuarios", "Error: Se intentó obtener usuarios sin estar logueado.")
+                    Log.w("fetchUsuarios", "Se intentó obtener usuarios sin haber iniciado sesión.")
                 }
+                */
             }
 
+            // Indica que la operación de carga (exitosa o no) ha finalizado.
             _isLoading.value = false
         }
     }

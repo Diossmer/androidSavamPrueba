@@ -3,6 +3,7 @@ package ve.com.movilnet.data.Authentication
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import ve.com.movilnet.utils.GsonProvider
 import ve.com.savam.data.models.Usuario
 
 // Hacemos el constructor privado para forzar el uso del método `getInstance`.
@@ -80,9 +81,15 @@ class SessionManager(context: Context) {
 
     fun getUser(): Usuario? {
         val usuarioJson = sharedPreferences.getString(KEY_JSON, null)
-        return if (usuarioJson != null) {
-            Gson().fromJson(usuarioJson, Usuario::class.java)
-        } else {
+        if (usuarioJson.isNullOrEmpty()) return null
+
+        return try {
+            // ¡CORRECCIÓN DEFINITIVA!
+            // Usamos la instancia de Gson que SÍ conoce nuestro TypeAdapter.
+            GsonProvider.instance.fromJson(usuarioJson, Usuario::class.java)
+        } catch (e: Exception) {
+            // Si el JSON guardado está corrupto, lo mejor es limpiar la sesión.
+            logout()
             null
         }
     }
