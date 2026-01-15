@@ -93,9 +93,32 @@ class FragmentNumerosConsulta: Fragment() {
                 val response = RetrofitClient.numeroConsultaServices.consultarNumero(request)
 
                 if (response.isSuccessful) {
-                    // La llamada fue exitosa (código 2xx)
-                    val consultaResponse = response.body()
-                    textViewResultado.text = "Resultado: ${consultaResponse?.mensaje ?: "Respuesta vacía"}"
+                    if (response.isSuccessful) {
+                        // La llamada fue exitosa (código 2xx)
+                        val consultaResponse = response.body()
+                        val data = consultaResponse?.data // Extraemos el objeto "data"
+
+                        if (data != null) {
+                            // Construimos el mensaje que queremos mostrar
+                            val titulo = data.titulo_pagina
+                            val tieneWhatsApp = if (data.tiene_whatsapp) {
+                                "Sí posee WhatsApp."
+                            } else {
+                                "No posee WhatsApp."
+                            }
+
+                            // Asignamos el texto formateado a nuestro TextView
+                            textViewResultado.text = "Título: $titulo\nEstado: $tieneWhatsApp"
+
+                        } else {
+                            // Si por alguna razón la respuesta no tiene el formato esperado
+                            textViewResultado.text = "Respuesta recibida, pero con formato inesperado."
+                        }
+
+                    } else {
+                        // La llamada falló (código 4xx o 5xx)
+                        textViewResultado.text = "Error: ${response.code()} - ${response.message()}"
+                    }
                 } else {
                     // La llamada falló (código 4xx o 5xx)
                     textViewResultado.text = "Error: ${response.code()} - ${response.message()}"
