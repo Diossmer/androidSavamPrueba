@@ -7,6 +7,6 @@ import ve.com.movilnet.data.Model.ConsultaRequest
 import ve.com.movilnet.data.Model.ConsultaResponse
 
 interface NumeroConsultaServices {
-    @POST("consultar-whatsapp")
+    @POST("consultar-numeros")
     suspend fun consultarNumero(@Body request: ConsultaRequest): Response<ConsultaResponse>
 }
