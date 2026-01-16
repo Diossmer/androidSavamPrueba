@@ -93,32 +93,49 @@ class FragmentNumerosConsulta: Fragment() {
                 val response = RetrofitClient.numeroConsultaServices.consultarNumero(request)
 
                 if (response.isSuccessful) {
-                    if (response.isSuccessful) {
-                        // La llamada fue exitosa (código 2xx)
-                        val consultaResponse = response.body()
-                        val data = consultaResponse?.data // Extraemos el objeto "data"
+                    // La llamada fue exitosa (código 2xx)
+                    val consultaResponse = response.body()
 
-                        if (data != null) {
-                            // Construimos el mensaje que queremos mostrar
-                            val titulo = data.titulo_pagina
-                            val tieneWhatsApp = if (data.tiene_whatsapp) {
-                                "Sí posee WhatsApp."
-                            } else {
-                                "No posee WhatsApp."
-                            }
+                    // Verificamos que la respuesta, el objeto 'data' y el objeto 'whatsapp' no sean nulos
+                    if (consultaResponse != null && consultaResponse.data != null) {
 
-                            // Asignamos el texto formateado a nuestro TextView
-                            textViewResultado.text = "Título: $titulo\nEstado: $tieneWhatsApp"
-
+                        // La clave está aquí: accedemos a través de .data.whatsapp
+                        // --- SECCIÓN WHATSAPP ---
+                        val whatsappInfo = consultaResponse.data.whatsapp
+                        val tituloWhatsApp = whatsappInfo.titulo_pagina // Usamos un nombre más específico
+                        val estadoWhatsApp = if (whatsappInfo.tiene_whatsapp) {
+                            "Sí posee WhatsApp."
                         } else {
-                            // Si por alguna razón la respuesta no tiene el formato esperado
-                            textViewResultado.text = "Respuesta recibida, pero con formato inesperado."
+                            "No posee WhatsApp."
                         }
 
+                        // --- SECCIÓN TELEGRAM (LA NUEVA PARTE) ---
+                        val telegramInfo = consultaResponse.data.telegram
+                        val estadoTelegram = if (telegramInfo.tiene_telegram) {
+                            "Sí posee Telegram."
+                        } else {
+                            // Usamos el mensaje que nos da la API para Telegram
+                            telegramInfo.mensaje
+                        }
+
+                        // --- CONSTRUCCIÓN DEL TEXTO FINAL ---
+                        // Unimos toda la información en un solo bloque de texto para el TextView.
+                        // Usamos \n para los saltos de línea.
+                        textViewResultado.text = """
+                            WhatsApp:
+                            Título: $tituloWhatsApp
+                            Estado: $estadoWhatsApp
+                    
+                            Telegram:
+                            Estado: $estadoTelegram
+                        """.trimIndent() // trimIndent() quita los espacios en blanco del inicio para que se vea bien
+
                     } else {
-                        // La llamada falló (código 4xx o 5xx)
-                        textViewResultado.text = "Error: ${response.code()} - ${response.message()}"
+                        // Si por alguna razón la respuesta no tiene el formato esperado (es nula o no tiene 'data')
+                        val errorMessage = consultaResponse?.message ?: "Respuesta con formato inesperado."
+                        textViewResultado.text = "Info: $errorMessage"
                     }
+
                 } else {
                     // La llamada falló (código 4xx o 5xx)
                     textViewResultado.text = "Error: ${response.code()} - ${response.message()}"
@@ -127,7 +144,7 @@ class FragmentNumerosConsulta: Fragment() {
             } catch (e: Exception) {
                 // Error de conexión, timeout, etc.
                 textViewResultado.text = "Error de conexión: ${e.message}"
-                Toast.makeText(context, "No se pudo conectar al servidor. ¿Está encendido?", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "No se pudo conectar al servidor.", Toast.LENGTH_LONG).show()
 
             } finally {
                 // Ocultar ProgressBar y reactivar el botón

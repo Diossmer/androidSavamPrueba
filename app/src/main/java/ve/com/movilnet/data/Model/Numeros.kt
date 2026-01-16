@@ -1,25 +1,15 @@
-package ve.com.savam.data.models
+package ve.com.savam.data.Model
 
 import com.google.gson.annotations.SerializedName
+import ve.com.savam.data.models.TelegramInfo
+import ve.com.savam.data.models.WhatsAppInfo
 
-//data class Numeros(
-//    @SerializedName("id") val id: Int,
-//    @SerializedName("cedula") val cedula: String?,
-//    @SerializedName("estatus") val estatus: String?,
-//    @SerializedName("numeroTelefono") val numeroTelefono: String?
-//)
-data class Numeros(
-    @SerializedName("numero_ingresado")
-    val numero_ingresado: String,
+data class Numeros( // Considera renombrar este archivo/clase a "DataResponse.kt" en el futuro para mayor claridad
+    @SerializedName("whatsapp")
+    val whatsapp: WhatsAppInfo, // <-- Aquí le decimos que espere un objeto de tipo WhatsAppInfo
 
-    @SerializedName("numero_formateado")
-    val numero_formateado: String,
-
-    @SerializedName("tiene_whatsapp")
-    val tiene_whatsapp: Boolean,
-
-    @SerializedName("titulo_pagina")
-    val titulo_pagina: String,
+    @SerializedName("telegram")
+    val telegram: TelegramInfo, // <-- Y aquí uno de tipo TelegramInfo
 
     @SerializedName("fecha_consulta")
     val fecha_consulta: String

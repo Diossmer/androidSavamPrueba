@@ -1,7 +1,7 @@
 package ve.com.movilnet.data.Model
 
 import com.google.gson.annotations.SerializedName
-import ve.com.savam.data.models.Numeros
+import ve.com.savam.data.Model.Numeros
 
 data class ConsultaResponse(
     @SerializedName("status")

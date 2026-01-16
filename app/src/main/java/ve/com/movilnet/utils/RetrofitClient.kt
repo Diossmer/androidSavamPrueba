@@ -11,7 +11,7 @@ import ve.com.movilnet.data.Services.UpdatePasswodServices
 import ve.com.movilnet.data.Services.UsuariosServices
 
 object RetrofitClient {
-    private const val BASE_URL = "http://10.99.13.225:3000/api/"
+    private const val BASE_URL = "http://10.0.2.2:3000/api/"
 
     // --- 2. CONFIGURACIÓN DEL CLIENTE HTTP (OkHttp) ---
     // Interceptor para poder ver en el logcat las peticiones y respuestas de la API.
