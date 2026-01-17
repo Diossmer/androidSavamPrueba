@@ -82,7 +82,7 @@ class UsuarioViewModel : ViewModel() {
         // Filtro 1: Por Rol (la lógica que ya tenías en fetchUsuarios)
         if (!esUsuarioAdministrador(usuarioActual)) {
             // Si no es admin, quitamos a los administradores de la vista.
-            listaFiltrada = listaFiltrada.filter { usuario -> !esUsuarioAdministrador(usuario) }
+            listaFiltrada = listaFiltrada.filter { usuario -> esUsuarioVisibleEnLista(usuario) }
         }
 
         // Filtro 2: Por Término de Búsqueda
@@ -143,11 +143,29 @@ class UsuarioViewModel : ViewModel() {
     }
 
     /**
+     * Comprueba si un usuario debe ser visible en la lista general (es decir, no es ni Admin ni Moderador).
+     * @param usuario El objeto Usuario a verificar.
+     * @return `true` si el usuario no es Administrador ni Moderador, `false` en caso contrario.
+     */
+    private fun esUsuarioVisibleEnLista(usuario: Usuario?): Boolean {
+        if (usuario?.roles?.nombre == null) {
+            // Si el usuario o su rol son nulos, lo consideramos no visible para evitar errores.
+            return false
+        }
+        val rolNombre = usuario.roles.nombre
+        // La condición es: el rol NO es "Administrador" Y TAMPOCO es "Moderador".
+        val noEsAdmin = !rolNombre.equals("Administrador", ignoreCase = true)
+        val noEsModerador = !rolNombre.equals("Moderador", ignoreCase = true)
+
+        return noEsAdmin && noEsModerador
+    }
+
+    /**
      * Obtiene la lista de usuarios según el rol del usuario que ha iniciado sesión.
      * - Si es Administrador, obtiene la lista completa desde la API.
      * - Si no es Administrador, solo muestra el perfil del propio usuario.
      */
-    fun fetchUsuarios() {
+    /*fun fetchUsuarios() {
         viewModelScope.launch {
             _isLoading.value = true
 
@@ -198,7 +216,7 @@ class UsuarioViewModel : ViewModel() {
             // Indica que la operación de carga (exitosa o no) ha finalizado.
             _isLoading.value = false
         }
-    }
+    }*/
 
     fun fetchRoles() {
         viewModelScope.launch {
@@ -278,7 +296,8 @@ class UsuarioViewModel : ViewModel() {
                 val response = RetrofitClient.usuariosServices.storeUsuario(requestRequest)
 
                 if (response.isSuccessful) {
-                    fetchUsuarios() // Refresca la lista después de agregar
+                    //fetchUsuarios() // Refresca la lista después de agregar
+                    cargarListaDeUsuarios()
                 } else {
                     _errorMessage.value = "Error al agregar: ${response.code()}"
                 }
@@ -334,7 +353,8 @@ class UsuarioViewModel : ViewModel() {
                 val response = RetrofitClient.usuariosServices.updateUsuario(usuario.id, usuarioRequest)
 
                 if (response.isSuccessful) {
-                    fetchUsuarios() // Refresca la lista después de actualizar
+                    //fetchUsuarios() // Refresca la lista después de actualizar
+                    cargarListaDeUsuarios()
                 } else {
                     _errorMessage.value = "Error al actualizar: ${response.code()} - ${response.errorBody()?.string()}"
                 }
@@ -349,7 +369,8 @@ class UsuarioViewModel : ViewModel() {
             try {
                 val response = RetrofitClient.usuariosServices.deletePost(usuarioId)
                 if (response.isSuccessful) {
-                    fetchUsuarios() // Refresca la lista después de eliminar
+                    //fetchUsuarios() // Refresca la lista después de eliminar
+                    cargarListaDeUsuarios()
                 } else {
                     _errorMessage.value = "Error al eliminar: ${response.code()}"
                 }
