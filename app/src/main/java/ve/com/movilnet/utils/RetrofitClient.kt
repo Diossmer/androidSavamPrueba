@@ -7,6 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ve.com.movilnet.data.Services.CredentialsServices
 import ve.com.movilnet.data.Services.NumeroConsultaServices
 import ve.com.movilnet.data.Services.RolesServices
+import ve.com.movilnet.data.Services.SuscriptorServices
 import ve.com.movilnet.data.Services.UpdatePasswodServices
 import ve.com.movilnet.data.Services.UsuariosServices
 
@@ -63,5 +64,9 @@ object RetrofitClient {
 
     val updatePasswodServices: UpdatePasswodServices by lazy {
         retrofit.create(UpdatePasswodServices::class.java)
+    }
+
+    val suscriptorServices: SuscriptorServices by lazy {
+        retrofit.create(SuscriptorServices::class.java)
     }
 }
