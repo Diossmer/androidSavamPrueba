@@ -1,8 +1,8 @@
-package ve.com.movilnet.data.Model
+package ve.com.movilnet.data.Response
 
 import com.google.gson.annotations.SerializedName
 
-data class UsuarioRequest(
+data class ProfileResponse(
     @SerializedName("id") val id: String?,
     @SerializedName("oficina") val oficina: String?,
     @SerializedName("correo") val correo: String?,
@@ -11,6 +11,5 @@ data class UsuarioRequest(
     @SerializedName("apellido") val apellido: String?,
     @SerializedName("cedula") val cedula: String?,
     @SerializedName("password") val password: String?,
-    // LA CLAVE: El backend espera un campo "roles" que sea una Lista de Strings (los IDs)
     @SerializedName("roles") val roles: List<String>?
 )

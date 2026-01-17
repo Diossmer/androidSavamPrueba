@@ -5,9 +5,6 @@ import ve.com.savam.data.models.TelegramInfo
 import ve.com.savam.data.models.WhatsAppInfo
 
 data class Numeros( // Considera renombrar este archivo/clase a "DataResponse.kt" en el futuro para mayor claridad
-    @SerializedName("status")
-    val status: String?,
-
     @SerializedName("whatsapp")
     val whatsapp: WhatsAppInfo, // <-- Aquí le decimos que espere un objeto de tipo WhatsAppInfo
 

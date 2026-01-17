@@ -11,11 +11,10 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import ve.com.movilnet.R
 import ve.com.movilnet.ui.viewmodel.UsuarioViewModel
-import ve.com.savam.data.models.Roles
-import ve.com.savam.data.models.Usuario
+import ve.com.movilnet.data.Response.RolesResponse
+import ve.com.movilnet.data.Response.UsuarioResponse
 
 class UsuarioDialogFragment : DialogFragment() {
     private val viewModel: UsuarioViewModel by activityViewModels()
@@ -31,9 +30,9 @@ class UsuarioDialogFragment : DialogFragment() {
     private lateinit var btnGuardar: Button
     private lateinit var btnCancelar: Button
     // Propiedades para manejar el estado del diálogo
-    private var usuarioToEdit: Usuario? = null
+    private var usuarioToEdit: UsuarioResponse? = null
     private lateinit var rolesAdapter: ArrayAdapter<String>
-    private var rolesList: List<Roles> = emptyList()
+    private var rolesList: List<RolesResponse> = emptyList()
 
     override fun onResume() {
         super.onResume()
@@ -63,14 +62,14 @@ class UsuarioDialogFragment : DialogFragment() {
         val userId = arguments?.getString("USER_ID")
         if (userId != null) {
             // MODO EDICIÓN:
-            title.text = "Editar Usuario"
+            title.text = "Editar UsuarioResponse"
             btnGuardar.text = "Actualizar"
             // Pedimos al ViewModel que cargue los datos del usuario.
             // El observador se encargará del resto.
             viewModel.mostrarUsuario(userId)
         } else {
             // MODO CREACIÓN:
-            title.text = "Agregar Usuario"
+            title.text = "Agregar UsuarioResponse"
             // Solo necesitamos cargar la lista de roles para el Spinner.
             viewModel.fetchRoles()
         }
@@ -128,7 +127,7 @@ class UsuarioDialogFragment : DialogFragment() {
         }
     }
 
-    private fun populateForm(usuario: Usuario) {
+    private fun populateForm(usuario: UsuarioResponse) {
         nombre.setText(usuario.nombre)
         apellido.setText(usuario.apellido)
         cedula.setText(usuario.cedula)
@@ -136,7 +135,7 @@ class UsuarioDialogFragment : DialogFragment() {
         // La contraseña no se debe pre-rellenar por seguridad.
     }
 
-    private fun selectUserRole(usuario: Usuario) {
+    private fun selectUserRole(usuario: UsuarioResponse) {
         val rolDelUsuario = usuario.roles
         if (rolDelUsuario != null && rolesList.isNotEmpty()) {
             // Esta es la forma simple, segura y moderna de encontrar el índice.
@@ -160,8 +159,8 @@ class UsuarioDialogFragment : DialogFragment() {
             }
             val selectedRoleObject = rolesList[selectedRolePosition]
 
-            // Construimos el objeto Usuario con los datos del formulario.
-            val usuarioData = Usuario(
+            // Construimos el objeto UsuarioResponse con los datos del formulario.
+            val usuarioData = UsuarioResponse(
                 id = usuarioToEdit?.id,
                 nombre = nombre.text.toString(),
                 apellido = apellido.text.toString(),

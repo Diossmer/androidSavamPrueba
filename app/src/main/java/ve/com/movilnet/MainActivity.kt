@@ -15,13 +15,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import ve.com.movilnet.data.Authentication.SessionManager
 import ve.com.movilnet.ui.ViewModel.SecondActivity
 import ve.com.movilnet.utils.GsonProvider
 import ve.com.movilnet.utils.RetrofitClient
-import ve.com.savam.data.models.LoginCredentials
+import ve.com.movilnet.data.Request.LoginCredentialsRequest
 
 class MainActivity : AppCompatActivity() {
     private lateinit var usuarioEdit: EditText
@@ -104,7 +103,7 @@ class MainActivity : AppCompatActivity() {
     private fun login() {
         val usuario = usuarioEdit.text.toString().trim()
         val contrasena = passwordEdit.text.toString().trim()
-        val loginRequest = LoginCredentials(usuario, contrasena)
+        val loginRequest = LoginCredentialsRequest(usuario, contrasena)
 
         lifecycleScope.launch {
             try {

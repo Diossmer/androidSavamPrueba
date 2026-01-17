@@ -3,14 +3,14 @@ package ve.com.movilnet.data.Services
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
-import ve.com.movilnet.data.Model.LoginResponse
-import ve.com.movilnet.data.Model.ProfileResponse
-import ve.com.savam.data.models.LoginCredentials
+import ve.com.movilnet.data.Response.LoginResponse
+import ve.com.movilnet.data.Response.ProfileResponse
+import ve.com.movilnet.data.Request.LoginCredentialsRequest
 
 interface CredentialsServices {
 //repositorio/API
     @POST("login")
-    suspend fun loginPost(@Body request: LoginCredentials): Response<LoginResponse>
+    suspend fun loginPost(@Body request: LoginCredentialsRequest): Response<LoginResponse>
     @POST("profile")
     suspend fun profile(): Response<MutableList<ProfileResponse>>
     @POST("logout")

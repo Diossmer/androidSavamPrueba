@@ -10,7 +10,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import ve.com.movilnet.R
 import ve.com.movilnet.ui.viewmodel.UsuarioViewModel
-import ve.com.savam.data.models.Usuario
+import ve.com.movilnet.data.Response.UsuarioResponse
 
 class fragmentUsuarioShowDialog: DialogFragment() {
     private val viewModel: UsuarioViewModel by activityViewModels()
@@ -68,7 +68,7 @@ class fragmentUsuarioShowDialog: DialogFragment() {
         }
     }
 
-    private fun populateInfo(usuario: Usuario) {
+    private fun populateInfo(usuario: UsuarioResponse) {
         title.text = "${usuario.nombre} ${usuario.apellido}"
         nombre.text = usuario.nombre ?: "No disponible"
         apellido.text = usuario.apellido ?: "No disponible"

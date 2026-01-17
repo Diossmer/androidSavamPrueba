@@ -1,4 +1,4 @@
-package ve.com.movilnet.data.Model
+package ve.com.movilnet.data.Response
 
 // En un nuevo archivo llamado GenericResponse.kt (puedes reutilizarlo)
 data class GenericResponse(

@@ -7,11 +7,10 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ve.com.movilnet.R
-import ve.com.movilnet.ui.Fragments.fragmentUsuarioShowDialog
-import ve.com.savam.data.models.Usuario
+import ve.com.movilnet.data.Response.UsuarioResponse
 
 class UsuarioAdapter(
-    private var usuarios: MutableList<Usuario>,
+    private var usuarios: MutableList<UsuarioResponse>,
     private val listener: OnUsuarioClickListener
 ) : RecyclerView.Adapter<UsuarioAdapter.UsuarioViewHolder>() {
     /**
@@ -22,9 +21,9 @@ class UsuarioAdapter(
      */
     // Interface para manejar los clics
     interface OnUsuarioClickListener {
-        fun onShowClick(usuario: Usuario)
-        fun onEditClick(usuario: Usuario)
-        fun onDeleteClick(usuario: Usuario)
+        fun onShowClick(usuario: UsuarioResponse)
+        fun onEditClick(usuario: UsuarioResponse)
+        fun onDeleteClick(usuario: UsuarioResponse)
     }
 
     // El ViewHolder contiene las vistas (TextViews, etc.) para cada item.
@@ -92,7 +91,7 @@ class UsuarioAdapter(
     override fun getItemCount() = usuarios.size
 
     // Función para actualizar la lista de usuarios en el adaptador.
-    fun updateData(newUsuarios: List<Usuario>) {
+    fun updateData(newUsuarios: List<UsuarioResponse>) {
         usuarios.clear()
         usuarios.addAll(newUsuarios)
         notifyDataSetChanged() // Notifica al RecyclerView que los datos han cambiado.

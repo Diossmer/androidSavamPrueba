@@ -2,7 +2,7 @@ package ve.com.movilnet.utils
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import ve.com.savam.data.models.Roles
+import ve.com.movilnet.data.Response.RolesResponse
 import ve.com.savam.data.models.RolesTypeAdapter
 
 /**
@@ -15,8 +15,8 @@ object GsonProvider {
     // Crea una única instancia "lazy" (solo cuando se necesita por primera vez).
     val instance: Gson by lazy {
         GsonBuilder()
-            // Aquí registramos nuestro TypeAdapter para la clase Roles.
-            .registerTypeAdapter(Roles::class.java, RolesTypeAdapter())
+            // Aquí registramos nuestro TypeAdapter para la clase RolesResponse.
+            .registerTypeAdapter(RolesResponse::class.java, RolesTypeAdapter())
             .create()
     }
 }

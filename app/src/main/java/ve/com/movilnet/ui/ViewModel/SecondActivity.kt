@@ -20,6 +20,7 @@ import ve.com.movilnet.data.Authentication.SessionManager
 import ve.com.movilnet.ui.Fragments.ContrasenaUpdateFragment
 import ve.com.movilnet.ui.Fragments.FragmentNumerosConsulta
 import ve.com.movilnet.ui.Fragments.FragmentUsuarios
+import ve.com.movilnet.ui.Fragments.SuscriptorFragment
 
 class SecondActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
@@ -104,6 +105,13 @@ class SecondActivity : AppCompatActivity() {
                     true
                 }
 
+                R.id.nav_suscriptor -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, SuscriptorFragment()).commit()
+                    drawerLayout.closeDrawers()
+                    true
+                }
+
                 R.id.nav_cambioContrasena -> {
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, ContrasenaUpdateFragment()).commit()
@@ -162,6 +170,7 @@ class SecondActivity : AppCompatActivity() {
         // Obtenemos los ítems específicos que queremos mostrar/ocultar por su ID
         val adminItem = menu.findItem(R.id.nav_usuario)
         val userProfileItem = menu.findItem(R.id.nav_consultar)
+        val suscriptorItem = menu.findItem(R.id.nav_suscriptor)
         val contrasenaUpdate = menu.findItem(R.id.nav_cambioContrasena)
         // Lógica para mostrar/ocultar ítems
         when (userRole) {
@@ -169,6 +178,7 @@ class SecondActivity : AppCompatActivity() {
                 adminItem?.isVisible = true
                 contrasenaUpdate.isVisible = false
                 userProfileItem?.isVisible = false
+                suscriptorItem?.isVisible = false
             }
 
             "Agente" -> {
@@ -176,6 +186,7 @@ class SecondActivity : AppCompatActivity() {
                 adminItem?.isVisible = false
                 contrasenaUpdate.isVisible = true
                 userProfileItem?.isVisible = true
+                suscriptorItem?.isVisible = false
             }
 
             "Moderador" -> {
@@ -183,6 +194,7 @@ class SecondActivity : AppCompatActivity() {
                 adminItem?.isVisible = true
                 contrasenaUpdate.isVisible = true
                 userProfileItem?.isVisible = false
+                suscriptorItem?.isVisible = true
             }
 
             else -> {
@@ -190,6 +202,7 @@ class SecondActivity : AppCompatActivity() {
                 adminItem?.isVisible = false
                 contrasenaUpdate.isVisible = false
                 userProfileItem?.isVisible = false
+                suscriptorItem?.isVisible = false
                 // Aquí podrías incluso cerrar la sesión y redirigir al login
             }
         }
