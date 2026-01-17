@@ -4,12 +4,13 @@ import com.google.gson.annotations.SerializedName
 import java.util.Date
 
 data class Suscriptor(
-    @SerializedName("id") val id: String,
-    @SerializedName("numeroTelefono") val numeroTelefono: String?,
-    @SerializedName("estatus") val estatus: String?,
-    @SerializedName("operador") val operador: String?,
-    @SerializedName("fecha") val fecha: Date?,
-    @SerializedName("whatsapp") val whatsapp: Boolean?,
-    @SerializedName("telegram") val telegram: Boolean?,
-    @SerializedName("cedula") val cedula: String?
+    // ESTRUCTURA CORRECTA (refleja el JSON de tu API)
+    val id: String?,
+    val cedula: String?,
+    val estatus: String?,
+    val operador: String?,
+    val numeroTelefono: String?,
+    val fecha: String?,
+    val whatsapp: Boolean?,
+    val telegram: Boolean?
 )
