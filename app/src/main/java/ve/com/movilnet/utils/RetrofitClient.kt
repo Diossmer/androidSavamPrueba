@@ -11,6 +11,7 @@ import ve.com.movilnet.data.Services.UpdatePasswodServices
 import ve.com.movilnet.data.Services.UsuariosServices
 
 object RetrofitClient {
+
     private const val BASE_URL = "http://10.0.2.2:3000/api/"
 
     // --- 2. CONFIGURACIÓN DEL CLIENTE HTTP (OkHttp) ---
@@ -21,6 +22,11 @@ object RetrofitClient {
 
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
+        // --- LÍNEAS AÑADIDAS ---
+        .connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS) // Aumenta el tiempo de espera para conectar
+        .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)    // Aumenta el tiempo de espera para leer la respuesta
+        .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)   // Aumenta el tiempo de espera para enviar la petición
+        // -----------------------
         .build()
 
     // --- 3. CREACIÓN DE UNA ÚNICA INSTANCIA DE RETROFIT ---
