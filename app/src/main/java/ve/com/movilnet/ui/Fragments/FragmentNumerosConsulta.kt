@@ -18,8 +18,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ve.com.movilnet.R
 import ve.com.movilnet.data.Authentication.SessionManager
-import ve.com.movilnet.data.Model.ConsultaRequest
-import ve.com.movilnet.data.Model.NumeroApiRequest
+import ve.com.movilnet.data.Request.ConsultaRequest
+import ve.com.movilnet.data.Request.NumeroApiRequest
 import ve.com.movilnet.utils.RetrofitClient
 import java.text.SimpleDateFormat
 import java.util.Date

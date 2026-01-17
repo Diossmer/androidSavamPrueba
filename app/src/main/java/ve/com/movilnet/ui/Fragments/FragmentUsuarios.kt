@@ -21,7 +21,7 @@ import ve.com.movilnet.R
 import ve.com.movilnet.data.Adapter.UsuarioAdapter
 import ve.com.movilnet.data.Authentication.SessionManager
 import ve.com.movilnet.ui.viewmodel.UsuarioViewModel
-import ve.com.savam.data.models.Usuario
+import ve.com.movilnet.data.Response.UsuarioResponse
 
 class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
 
@@ -103,7 +103,7 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
             // 2. ¡AQUÍ ES DONDE LO GUARDAS EN EL VIEWMODEL!
             // Esta es la conexión que buscábamos.
             usuarioViewModel.setLoggedInUser(usuarioLogueado)
-            Log.d("PROFILE_SETUP", "Usuario '${usuarioLogueado.nombre}' establecido en ViewModel.")
+            Log.d("PROFILE_SETUP", "UsuarioResponse '${usuarioLogueado.nombre}' establecido en ViewModel.")
         } else {
             Log.e("PROFILE_SETUP", "Error: No se pudo recuperar el usuario de la sesión.")
             // Aquí podrías cerrar la sesión y volver al login si el usuario es nulo.
@@ -142,20 +142,20 @@ class FragmentUsuarios : Fragment(), UsuarioAdapter.OnUsuarioClickListener {
         })
     }
 
-    override fun onShowClick(usuario: Usuario) {
+    override fun onShowClick(usuario: UsuarioResponse) {
         usuario.id?.let { userId ->
             fragmentUsuarioShowDialog.newInstance(usuario.id)
                 .show(parentFragmentManager, "dialog_usuario_show")
         }
     }
 
-    override fun onEditClick(usuario: Usuario) {
+    override fun onEditClick(usuario: UsuarioResponse) {
         // Muestra el dialog para editar, pasando el ID del usuario
         UsuarioDialogFragment.newInstance(usuario.id)
             .show(parentFragmentManager, "dialog_usuario_edit")
     }
 
-    override fun onDeleteClick(usuario: Usuario) {
+    override fun onDeleteClick(usuario: UsuarioResponse) {
         // Muestra un dialog de confirmación antes de borrar
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Confirmar eliminación")

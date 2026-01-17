@@ -1,4 +1,4 @@
-package ve.com.movilnet.data.Model
+package ve.com.movilnet.data.Request
 
 import com.google.gson.annotations.SerializedName
 

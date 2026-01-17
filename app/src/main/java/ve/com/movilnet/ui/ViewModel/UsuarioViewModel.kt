@@ -6,33 +6,32 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ve.com.movilnet.data.Model.UsuarioRequest
+import ve.com.movilnet.data.Request.UsuarioRequest
 import ve.com.movilnet.utils.RetrofitClient
-import ve.com.savam.data.models.Roles
-import ve.com.savam.data.models.Usuario
-import kotlin.text.filter
+import ve.com.movilnet.data.Response.RolesResponse
+import ve.com.movilnet.data.Response.UsuarioResponse
 import kotlin.text.lowercase
 
 class UsuarioViewModel : ViewModel() {
     // LiveData privado y mutable, solo el ViewModel puede cambiar su valor.
-    private val _usuarios = MutableLiveData<List<Usuario>>()
+    private val _usuarios = MutableLiveData<List<UsuarioResponse>>()
     // LiveData público e inmutable, la vista solo puede observar sus cambios.
-    val usuarios: LiveData<List<Usuario>> = _usuarios
+    val usuarios: LiveData<List<UsuarioResponse>> = _usuarios
     // LiveData para manejar errores o estados de carga.
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
-    private val _roles = MutableLiveData<List<Roles>>()
-    val roles: LiveData<List<Roles>> = _roles
+    private val _roles = MutableLiveData<List<RolesResponse>>()
+    val roles: LiveData<List<RolesResponse>> = _roles
     // --- NUEVO LIVE DATA PARA EL USUARIO SELECCIONADO ---
-    private val _usuarioSeleccionado = MutableLiveData<Usuario?>()
-    val usuarioSeleccionado: LiveData<Usuario?> = _usuarioSeleccionado
+    private val _usuarioSeleccionado = MutableLiveData<UsuarioResponse?>()
+    val usuarioSeleccionado: LiveData<UsuarioResponse?> = _usuarioSeleccionado
     // --- LiveData para el usuario que ha iniciado sesión ---
-    private val _loggedInUser = MutableLiveData<Usuario?>()
-    val loggedInUser: LiveData<Usuario?> = _loggedInUser
+    private val _loggedInUser = MutableLiveData<UsuarioResponse?>()
+    val loggedInUser: LiveData<UsuarioResponse?> = _loggedInUser
     // --- Lista para guardar la fuente de datos original ---
-    private var listaCompletaDeUsuarios: List<Usuario> = emptyList()
+    private var listaCompletaDeUsuarios: List<UsuarioResponse> = emptyList()
 
 
     // --- 1. FUNCIÓN PÚBLICA PARA CARGAR DATOS ---
@@ -113,7 +112,7 @@ class UsuarioViewModel : ViewModel() {
      * Establece el usuario que ha iniciado sesión.
      * Deberías llamar a esta función después de un login exitoso.
      */
-    fun setLoggedInUser(usuario: Usuario?) {
+    fun setLoggedInUser(usuario: UsuarioResponse?) {
         _loggedInUser.value = usuario
     }
 
@@ -122,10 +121,10 @@ class UsuarioViewModel : ViewModel() {
      * Esta función es privada para asegurar que la lógica de validación de roles
      * se mantenga encapsulada dentro del ViewModel.
      *
-     * @param usuario El objeto Usuario a verificar.
+     * @param usuario El objeto UsuarioResponse a verificar.
      * @return `true` si el usuario no es nulo y su rol es "Administrador", `false` en caso contrario.
      */
-    private fun esUsuarioAdministrador(usuario: Usuario?): Boolean {
+    private fun esUsuarioAdministrador(usuario: UsuarioResponse?): Boolean {
         // Si el usuario que nos pasan es nulo, no puede ser admin.
         if (usuario == null) {
             Log.d("AuthCheck", "Chequeo de rol fallido: el objeto usuario es nulo.")
@@ -144,10 +143,10 @@ class UsuarioViewModel : ViewModel() {
 
     /**
      * Comprueba si un usuario debe ser visible en la lista general (es decir, no es ni Admin ni Moderador).
-     * @param usuario El objeto Usuario a verificar.
+     * @param usuario El objeto UsuarioResponse a verificar.
      * @return `true` si el usuario no es Administrador ni Moderador, `false` en caso contrario.
      */
-    private fun esUsuarioVisibleEnLista(usuario: Usuario?): Boolean {
+    private fun esUsuarioVisibleEnLista(usuario: UsuarioResponse?): Boolean {
         if (usuario?.roles?.nombre == null) {
             // Si el usuario o su rol son nulos, lo consideramos no visible para evitar errores.
             return false
@@ -175,7 +174,7 @@ class UsuarioViewModel : ViewModel() {
             // Se pasa el usuario actual a la función de validación.
             if (esUsuarioAdministrador(usuarioActual)) {
                 // CASO 1: Es Administrador -> Visualiza la lista completa.
-                Log.d("fetchUsuarios", "Usuario es Administrador. Obteniendo lista completa de la API.")
+                Log.d("fetchUsuarios", "UsuarioResponse es Administrador. Obteniendo lista completa de la API.")
                 try {
                     val response = RetrofitClient.usuariosServices.listUsuarios()
                     if (response.isSuccessful) {
@@ -190,7 +189,7 @@ class UsuarioViewModel : ViewModel() {
                 }
             } else {
                 // CASO 2: NO es Administrador (ej: Moderador, Agente, etc.)
-                Log.d("fetchUsuarios", "Usuario NO es Administrador. Obteniendo lista y filtrando admins.")
+                Log.d("fetchUsuarios", "UsuarioResponse NO es Administrador. Obteniendo lista y filtrando admins.")
                 try {
                     // 1. Llama a la API para obtener la lista completa de usuarios.
                     val response = RetrofitClient.usuariosServices.listUsuarios()
@@ -235,17 +234,18 @@ class UsuarioViewModel : ViewModel() {
                     // 3. Comprobar si el usuario actual NO es administrador
                     if (!esUsuarioAdministrador(usuarioActual)) {
                         // Si NO es Admin (ej: Moderador, Agente), filtramos la lista
-                        Log.d("fetchRoles", "Usuario no es Administrador. Filtrando la lista de roles.")
+                        Log.d("fetchRoles", "UsuarioResponse no es Administrador. Filtrando la lista de roles.")
                         val rolesFiltrados = todosLosRoles?.filter { rol ->
                             // Comparamos el nombre del rol, ignorando mayúsculas/minúsculas
-                            !rol.nombre.equals("Administrador", ignoreCase = true)
+                            !rol.nombre.equals("Administrador", ignoreCase = true) &&
+                                    !rol.nombre.equals("Moderador", ignoreCase = true) // Tambien aqui prohibo el moderador en la lista de usuario
                         }
                         // Asignamos la lista filtrada (sin el rol "Administrador")
                         _roles.value = rolesFiltrados ?: emptyList()
                     } else {
                         // Si ES Admin (o no hay usuario logueado, lo cual es un caso borde),
                         // mostramos la lista completa de roles.
-                        Log.d("fetchRoles", "Usuario es Administrador. Mostrando todos los roles.")
+                        Log.d("fetchRoles", "UsuarioResponse es Administrador. Mostrando todos los roles.")
                         _roles.value = todosLosRoles?: emptyList()
                     }
                 } else {
@@ -262,7 +262,7 @@ class UsuarioViewModel : ViewModel() {
     }
 
     // Dentro de la clase UsuarioViewModel, añade estas funciones:
-    fun agregarUsuario(usuario: Usuario) {
+    fun agregarUsuario(usuario: UsuarioResponse) {
         viewModelScope.launch {
             try {
                 // LA SOLUCIÓN: Obtener el primer elemento de la lista y LUEGO su id.
@@ -289,7 +289,7 @@ class UsuarioViewModel : ViewModel() {
                     roles = listOf(rolId)
                 )
 
-                // ¡OJO! La API al CREAR devuelve un 'Usuario' con "roles" como String.
+                // ¡OJO! La API al CREAR devuelve un 'UsuarioResponse' con "roles" como String.
                 // Esto fallará la deserialización con Gson.
                 // La solución ideal es pedir al backend que la respuesta al crear sea consistente
                 // y devuelva el objeto rol completo.
@@ -327,7 +327,7 @@ class UsuarioViewModel : ViewModel() {
         }
     }
 
-    fun actualizarUsuario(usuario: Usuario) {
+    fun actualizarUsuario(usuario: UsuarioResponse) {
         viewModelScope.launch {
             try {
                 // Obtén el primer rol de la lista. Si no hay, no se podrá actualizar.

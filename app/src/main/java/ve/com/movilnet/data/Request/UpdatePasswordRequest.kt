@@ -1,4 +1,4 @@
-package ve.com.movilnet.data.Model
+package ve.com.movilnet.data.Request
 
 // En un nuevo archivo llamado UpdatePasswordRequest.kt
 data class UpdatePasswordRequest(

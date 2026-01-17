@@ -1,8 +1,8 @@
-package ve.com.savam.data.models
+package ve.com.movilnet.data.Request
 
 import com.google.gson.annotations.SerializedName
 
-data class LoginCredentials(
+data class LoginCredentialsRequest(
     @SerializedName("Usuario")
     val Usuario: String,
     @SerializedName("Password")

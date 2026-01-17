@@ -8,14 +8,13 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.activity.result.launch
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 import ve.com.movilnet.R
 import ve.com.movilnet.data.Authentication.SessionManager
-import ve.com.movilnet.data.Model.UpdatePasswordRequest
+import ve.com.movilnet.data.Request.UpdatePasswordRequest
 import ve.com.movilnet.utils.RetrofitClient
 
 

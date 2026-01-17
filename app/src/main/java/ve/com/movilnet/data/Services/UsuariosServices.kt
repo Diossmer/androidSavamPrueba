@@ -8,20 +8,20 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
-import ve.com.movilnet.data.Model.UsuarioRequest
-import ve.com.savam.data.models.Usuario
+import ve.com.movilnet.data.Request.UsuarioRequest
+import ve.com.movilnet.data.Response.UsuarioResponse
 
 interface UsuariosServices {
     @GET("usuarios")
-    suspend fun listUsuarios(): Response<MutableList<Usuario>>
+    suspend fun listUsuarios(): Response<MutableList<UsuarioResponse>>
     @POST("usuarios")
-    suspend fun storeUsuario(@Body usuario: UsuarioRequest): Response<Usuario> // Recibes un Usuario, pero envías un UsuarioRequest
+    suspend fun storeUsuario(@Body usuario: UsuarioRequest): Response<UsuarioResponse> // Recibes un UsuarioResponse, pero envías un UsuarioRequest
     @GET("usuarios/{id}")
-    suspend fun showUsuario(@Path("id") id: String): Response<Usuario>
+    suspend fun showUsuario(@Path("id") id: String): Response<UsuarioResponse>
     @PUT("usuarios/{id}")
-    suspend fun updateUsuario(@Path("id") id: String, @Body usuario: UsuarioRequest): Response<Usuario>
+    suspend fun updateUsuario(@Path("id") id: String, @Body usuario: UsuarioRequest): Response<UsuarioResponse>
     @PATCH("usuarios/{id}")
-    suspend fun patchPost(@Path("id") id: String, @Body usuario: UsuarioRequest): Response<Usuario>
+    suspend fun patchPost(@Path("id") id: String, @Body usuario: UsuarioRequest): Response<UsuarioResponse>
     @DELETE("usuarios/{id}")
     suspend fun deletePost(@Path("id") id: String): Response<Unit>
 }

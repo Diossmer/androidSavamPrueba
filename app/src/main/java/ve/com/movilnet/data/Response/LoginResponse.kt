@@ -1,6 +1,7 @@
-package ve.com.movilnet.data.Model
+package ve.com.movilnet.data.Response
 
 import com.google.gson.annotations.SerializedName
+import ve.com.movilnet.data.Model.UsuarioAuthenticaton
 
 data class LoginResponse(
     val token: String?,

@@ -1,4 +1,4 @@
-package ve.com.movilnet.data.Model
+package ve.com.movilnet.data.Response
 
 import com.google.gson.annotations.SerializedName
 import ve.com.savam.data.Model.Numeros

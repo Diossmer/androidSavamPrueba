@@ -4,14 +4,15 @@ import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
+import ve.com.movilnet.data.Response.RolesResponse
 
 /**
  * Este TypeAdapter maneja el caso donde el campo 'roles'
  * a veces es un objeto JSON y otras veces es un simple String (ID).
  */
-class RolesTypeAdapter : TypeAdapter<Roles>() {
+class RolesTypeAdapter : TypeAdapter<RolesResponse>() {
 
-    override fun write(out: JsonWriter, value: Roles?) {
+    override fun write(out: JsonWriter, value: RolesResponse?) {
         // Lógica para escribir (convertir de objeto a JSON), si es necesaria.
         // Por ahora, lo dejamos simple.
         if (value == null) {
@@ -25,7 +26,7 @@ class RolesTypeAdapter : TypeAdapter<Roles>() {
         out.endObject()
     }
 
-    override fun read(reader: JsonReader): Roles? {
+    override fun read(reader: JsonReader): RolesResponse? {
         // peek() nos deja ver el tipo del siguiente token sin consumirlo.
         when (reader.peek()) {
 
@@ -39,8 +40,13 @@ class RolesTypeAdapter : TypeAdapter<Roles>() {
             // Ejemplo JSON: "roles": "a1b2c3d4-e5f6-..."
             JsonToken.STRING -> {
                 val roleId = reader.nextString()
-                // Creamos un objeto Roles parcial, solo con el ID.
-                return Roles(id = roleId, nombre = null, descripcion = null, permisos = null)
+                // Creamos un objeto RolesResponse parcial, solo con el ID.
+                return RolesResponse(
+                    id = roleId,
+                    nombre = null,
+                    descripcion = null,
+                    permisos = null
+                )
             }
 
             // CASO 2: Cuando la API devuelve el objeto Rol completo.
@@ -86,8 +92,13 @@ class RolesTypeAdapter : TypeAdapter<Roles>() {
                 }
                 reader.endObject() // Terminamos de leer el objeto
 
-                // Creamos el objeto Roles con los valores correctos que hemos recolectado.
-                return Roles(id, nombre, descripcion, if (permisos.isNotEmpty()) permisos else null)
+                // Creamos el objeto RolesResponse con los valores correctos que hemos recolectado.
+                return RolesResponse(
+                    id,
+                    nombre,
+                    descripcion,
+                    if (permisos.isNotEmpty()) permisos else null
+                )
             }
 
             // Si el token es de un tipo inesperado (ni null, ni String, ni Objeto), lo ignoramos.
