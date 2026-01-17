@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?android:colorBackground">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Añadir Nuevo Suscriptor"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Número de Teléfono (no editable, vendrá de la consulta) -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextNumeroSuscriptor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Número de Teléfono"
+            android:enabled="false"
+            android:focusable="false"
+            android:inputType="phone"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Cédula del Suscriptor -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextCedulaSuscriptor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Cédula (Opcional)"
+            android:inputType="text"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Switches para WhatsApp y Telegram -->
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchWhatsapp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tiene WhatsApp"
+        android:checked="false"
+        android:layout_marginTop="8dp"/>
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchTelegram"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tiene Telegram"
+        android:checked="false"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Botón para Guardar -->
+    <!--com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonGuardarSuscriptor"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Guardar Suscriptor"
+        app:cornerRadius="8dp" /-->
+
+    <!--com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonGuardarSuscripto"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="24dp"
+        android:text="Guardar Suscriptor"
+        android:textColor="@android:color/white"
+        app:backgroundTint="#6750A4"
+        app:cornerRadius="28dp" /-->
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonGuardarSuscriptor"
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:text="Guardar Suscriptor"
+        android:textSize="16sp"
+        android:textAllCaps="false"
+        app:icon="@android:drawable/ic_menu_save"
+        app:iconGravity="textStart"
+        app:cornerRadius="12dp" />
+
+</LinearLayout>

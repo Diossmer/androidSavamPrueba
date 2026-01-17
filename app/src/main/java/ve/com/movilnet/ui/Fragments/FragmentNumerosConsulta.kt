@@ -96,6 +96,7 @@ class FragmentNumerosConsulta : Fragment() {
                 if (response.isSuccessful) {
                     val consultaResponse = response.body()
                     if (consultaResponse != null && consultaResponse.data != null) {
+                        val estado = consultaResponse.data.status
                         val whatsappInfo = consultaResponse.data.whatsapp
                         val telegramInfo = consultaResponse.data.telegram
 
@@ -115,7 +116,7 @@ class FragmentNumerosConsulta : Fragment() {
 
                         // Si falta algún servicio, mostramos el diálogo
                         if (!whatsappInfo.tiene_whatsapp || !telegramInfo.tiene_telegram) {
-                            mostrarDialogoAsignarDatos(numero, !whatsappInfo.tiene_whatsapp, !telegramInfo.tiene_telegram)
+                            mostrarDialogoAsignarDatos(estado, numero, !whatsappInfo.tiene_whatsapp, !telegramInfo.tiene_telegram)
                         }
                     } else {
                         textViewResultado.text = "Info: ${consultaResponse?.message ?: "Respuesta con formato inesperado."}"
@@ -176,6 +177,7 @@ class FragmentNumerosConsulta : Fragment() {
 
     // --- Función dedicada únicamente a MOSTRAR el diálogo ---
     private fun mostrarDialogoAsignarDatos(
+        estado: String?,
         numero: String,
         faltaWhatsApp: Boolean,
         faltaTelegram: Boolean
@@ -189,14 +191,29 @@ class FragmentNumerosConsulta : Fragment() {
         }
 
         if (motivo.isNotEmpty()) {
-            val mensajeCompleto = "El suscriptor no tiene registro $numero para $motivo. ¿Deseas realizar otra acción?"
+            val mensajeCompleto = "El suscriptor no tiene registro para $motivo. ¿Deseas asignarle el $numero?"
             MaterialAlertDialogBuilder(safeContext)
                 .setTitle("Acción Sugerida")
                 .setMessage(mensajeCompleto)
                 .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
                 .setPositiveButton("Aceptar") { _, _ ->
-                    // Aquí puedes poner la lógica para la "otra acción"
-                    Toast.makeText(safeContext, "Acción Aceptada (próximamente)", Toast.LENGTH_LONG).show()
+                    // --- ¡AQUÍ ESTÁ EL CAMBIO CLAVE! ---
+
+                    // 1. Creamos una instancia de nuestro nuevo BottomSheet
+                    //    usando el método `newInstance` para pasar los datos de forma segura.
+                    //    - El número ya lo tenemos.
+                    //    - Si 'faltaWhatsApp' es true, significa que no tiene, así que el switch empieza en 'false'.
+                    val bottomSheet = SuscriptorBottomSheetFragment.newInstance(
+                        numero = numero,
+                        tieneWhatsapp = !faltaWhatsApp, // Invertimos la lógica
+                        tieneTelegram = !faltaTelegram,
+                        estatus = estado
+                    )
+
+                    // 2. Mostramos el BottomSheet.
+                    //    Usamos 'childFragmentManager' porque estamos lanzando un fragmento desde otro fragmento.
+                    bottomSheet.show(childFragmentManager, SuscriptorBottomSheetFragment.TAG)
+                    Toast.makeText(safeContext, "Datos del Suscriptor.", Toast.LENGTH_LONG).show()
                 }
                 .show() // <-- Un solo show() al final es correcto
         }
