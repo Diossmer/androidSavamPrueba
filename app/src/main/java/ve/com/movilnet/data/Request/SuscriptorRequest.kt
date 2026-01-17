@@ -11,5 +11,5 @@ data class SuscriptorRequest(
     @SerializedName("telegram") val telegram: Boolean?,
     @SerializedName("operador") val operador: String?,
     @SerializedName("fecha") val fecha: Date?,
-    @SerializedName("id") val id: String,
+    @SerializedName("id") val id: String?,
 )

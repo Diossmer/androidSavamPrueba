@@ -7,6 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ve.com.movilnet.data.Services.CredentialsServices
 import ve.com.movilnet.data.Services.NumeroConsultaServices
 import ve.com.movilnet.data.Services.RolesServices
+import ve.com.movilnet.data.Services.SuscriptorServices
 import ve.com.movilnet.data.Services.UpdatePasswodServices
 import ve.com.movilnet.data.Services.UsuariosServices
 
@@ -22,9 +23,9 @@ object RetrofitClient {
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
         // --- LÍNEAS AÑADIDAS ---
-        .connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS) // Aumenta el tiempo de espera para conectar
-        .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)    // Aumenta el tiempo de espera para leer la respuesta
-        .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)   // Aumenta el tiempo de espera para enviar la petición
+        .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS) // Aumenta el tiempo de espera para conectar
+        .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)    // Aumenta el tiempo de espera para leer la respuesta
+        .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)   // Aumenta el tiempo de espera para enviar la petición
         // -----------------------
         .build()
 
@@ -62,5 +63,9 @@ object RetrofitClient {
 
     val updatePasswodServices: UpdatePasswodServices by lazy {
         retrofit.create(UpdatePasswodServices::class.java)
+    }
+
+    val suscriptorServices: SuscriptorServices by lazy {
+        retrofit.create(SuscriptorServices::class.java)
     }
 }

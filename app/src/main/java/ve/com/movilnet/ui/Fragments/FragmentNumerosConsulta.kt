@@ -96,7 +96,7 @@ class FragmentNumerosConsulta : Fragment() {
                 if (response.isSuccessful) {
                     val consultaResponse = response.body()
                     if (consultaResponse != null && consultaResponse.data != null) {
-                        val estado = consultaResponse.data.status
+                        val estado = consultaResponse.status
                         val whatsappInfo = consultaResponse.data.whatsapp
                         val telegramInfo = consultaResponse.data.telegram
 
@@ -116,7 +116,12 @@ class FragmentNumerosConsulta : Fragment() {
 
                         // Si falta algún servicio, mostramos el diálogo
                         if (!whatsappInfo.tiene_whatsapp || !telegramInfo.tiene_telegram) {
-                            mostrarDialogoAsignarDatos(estado, numero, !whatsappInfo.tiene_whatsapp, !telegramInfo.tiene_telegram)
+                            mostrarDialogoAsignarDatos(
+                                estado,
+                                numero,
+                                !whatsappInfo.tiene_whatsapp,
+                                !telegramInfo.tiene_telegram,
+                            )
                         }
                     } else {
                         textViewResultado.text = "Info: ${consultaResponse?.message ?: "Respuesta con formato inesperado."}"
@@ -183,6 +188,16 @@ class FragmentNumerosConsulta : Fragment() {
         faltaTelegram: Boolean
     ) {
         val safeContext = context ?: return
+        val sessionManager = SessionManager.getInstance(safeContext)
+        val usuarioLogueado = sessionManager.getUser()
+        val operador = usuarioLogueado?.cedula
+
+        // --- VALIDACIÓN IMPORTANTE ---
+        if (operador.isNullOrBlank()) {
+            Toast.makeText(safeContext, "Error: No se encontró la cédula del operador. No se puede continuar.", Toast.LENGTH_LONG).show()
+            return // No podemos continuar si no tenemos la cédula del operador
+        }
+
         val motivo = when {
             faltaWhatsApp && faltaTelegram -> "WhatsApp y Telegram"
             faltaWhatsApp -> "WhatsApp"
@@ -203,11 +218,14 @@ class FragmentNumerosConsulta : Fragment() {
                     //    usando el método `newInstance` para pasar los datos de forma segura.
                     //    - El número ya lo tenemos.
                     //    - Si 'faltaWhatsApp' es true, significa que no tiene, así que el switch empieza en 'false'.
+                    // --- ¡AQUÍ ESTÁ LA CORRECCIÓN! ---
+                    // Usamos los nombres de los parámetros para hacer la llamada correctamente
                     val bottomSheet = SuscriptorBottomSheetFragment.newInstance(
+                        operador = operador, // Pasamos la cédula del operador logueado
                         numero = numero,
-                        tieneWhatsapp = !faltaWhatsApp, // Invertimos la lógica
-                        tieneTelegram = !faltaTelegram,
-                        estatus = estado
+                        estatus = estado,
+                        tieneWhatsapp = !faltaWhatsApp,
+                        tieneTelegram = !faltaTelegram
                     )
 
                     // 2. Mostramos el BottomSheet.
