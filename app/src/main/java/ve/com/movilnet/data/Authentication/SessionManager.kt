@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import ve.com.movilnet.utils.GsonProvider
 import ve.com.movilnet.data.Response.UsuarioResponse
+import androidx.core.content.edit
 
 // Hacemos el constructor privado para forzar el uso del método `getInstance`.
 class SessionManager(context: Context) {
@@ -20,6 +21,8 @@ class SessionManager(context: Context) {
         const val KEY_USER_NAME = "USER_NAME"
         const val KEY_CORREO = "USER_EMAIL"
         const val KEY_JSON = "USER_JSON"
+        const val REMEMBER_USER_CHECK = "remember_user"
+        const val REMEMBERED_USERNAME = "remembered_username"
 
         // 1. Instancia Singleton Volátil
         //    @Volatile garantiza que los cambios en la instancia sean visibles para todos los hilos.
@@ -59,6 +62,19 @@ class SessionManager(context: Context) {
     fun saveUserEmail(correo: String?) {
         sharedPreferences.edit().putString(KEY_CORREO, correo).apply()
     }
+
+    fun saveRememberMe(username: String, remember: Boolean) {
+        sharedPreferences.edit {
+            putBoolean(REMEMBER_USER_CHECK, remember)
+            if (remember) {
+                putString(REMEMBERED_USERNAME, username)
+            } else {
+                remove(REMEMBERED_USERNAME)
+            }
+        }
+    }
+
+    fun getRememberedUsername(): String? = sharedPreferences.getString(REMEMBERED_USERNAME, null)
 
     // --- MÉTODOS PARA RECUPERAR DATOS ---
 

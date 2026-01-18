@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -26,8 +27,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var usuarioEdit: EditText
     private lateinit var passwordEdit: EditText
     private lateinit var ingresarButton: Button
+    private lateinit var recordarUsuarioCheckBox: CheckBox
     //private lateinit var credentialsServices: CredentialsServices
-
     //declarando la sessionManager
     private lateinit var sessionManager: SessionManager
     private lateinit var secondActivityLauncher: ActivityResultLauncher<Intent>
@@ -40,18 +41,28 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_main)// <-- El layout se infla aquí
         usuarioEdit = findViewById(R.id.usuarioEditText)
         passwordEdit = findViewById(R.id.passwordEditText)
         ingresarButton = findViewById(R.id.ingresarButton)
+        // ¡LA LÍNEA QUE FALTA! Inicializa el CheckBox aquí.
+        recordarUsuarioCheckBox = findViewById(R.id.recordarUsuarioCheckBox)
 
         //Inicializo la sessionManager
         sessionManager = SessionManager(this)
+        // --- Cargar el usuario recordado ---
+        val rememberedUser = sessionManager.getRememberedUsername()
+        if (rememberedUser != null) {
+            usuarioEdit.setText(rememberedUser)
+            recordarUsuarioCheckBox.isChecked = true
+        }
+
         secondActivityLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             // Este bloque se ejecutará CUANDO SecondActivity se cierre y devuelva un resultado.
             if (result.resultCode == RESULT_LOGOUT) {
+                sessionManager.logout()
                 // Si el resultado es el que esperamos (logout)...
 
                 // --- ¡CAMBIO CLAVE! Inicia una corrutina para llamar a la API ---
@@ -105,6 +116,9 @@ class MainActivity : AppCompatActivity() {
         val contrasena = passwordEdit.text.toString().trim()
         val loginRequest = LoginCredentialsRequest(usuario, contrasena)
 
+        // Guardar la preferencia de recordar usuario ANTES de hacer el login
+        sessionManager.saveRememberMe(usuario, recordarUsuarioCheckBox.isChecked)
+
         lifecycleScope.launch {
             try {
                 val response = RetrofitClient.credentialsServices.loginPost(loginRequest)
@@ -148,6 +162,25 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "Error de conexión: ${e.message}", Toast.LENGTH_SHORT).show()
                 Log.e("LOGIN_ERROR", "Exception", e)
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 3. Llama a la función de actualización CADA VEZ que la actividad sea visible.
+        // Esto soluciona el problema del logout.
+        actualizarUsuarioRecordado()
+    }
+
+    // 2. Nueva función que encapsula la lógica de "recordar usuario"
+    private fun actualizarUsuarioRecordado() {
+        if (recordarUsuarioCheckBox.isChecked) {
+            val rememberedUser = sessionManager.getRememberedUsername()
+            usuarioEdit.setText(rememberedUser ?: "")
+        } else {
+            // Si el checkbox no está marcado, asegúrate de que el campo esté vacío
+            // al volver (esto es opcional pero mejora la experiencia).
+            usuarioEdit.setText("")
         }
     }
 
