@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
@@ -25,7 +26,7 @@ class SuscriptorBottomSheetFragment : BottomSheetDialogFragment() {
     private var tieneTelegramInicial: Boolean = false
 
     // 1. Inyectar el ViewModel usando la delegación de KTX
-    private val suscriptorViewModel: SuscriptorViewModel by viewModels {
+    private val suscriptorViewModel: SuscriptorViewModel by activityViewModels {
         SuscriptorViewModelFactory() // <-- ¡Este es el cambio clave!
     }
 
