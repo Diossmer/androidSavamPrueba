@@ -41,7 +41,7 @@ class SecondActivity : AppCompatActivity() {
         // --- INICIALIZA SESSION MANAGER ---
         sessionManager = SessionManager(applicationContext)
         // --- Configurar el Toolbar ---
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        val toolbar: Toolbar = findViewById(R.id.toolbar)// Le dice a la actividad que este es su toolbar oficial
         setSupportActionBar(toolbar) // Le dice a la actividad que este es su toolbar oficial
 
         // --- Conectar el DrawerLayout y crear el botón de hamburguesa ---
@@ -156,6 +156,8 @@ class SecondActivity : AppCompatActivity() {
                         backToast.cancel()
                         // IMPORTANTE: Para que el callback cierre la actividad,
                         // debemos deshabilitarlo y llamar de nuevo al dispatcher.
+                        // 1. Limpia los datos de sesión (token, rol, etc.).
+                        sessionManager.logout()
                         isEnabled = false
                         dispatcher.onBackPressed()
                     } else {
