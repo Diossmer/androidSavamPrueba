@@ -47,19 +47,23 @@ class SuscriptorViewModel(private val suscriptorService: SuscriptorServices) :
     // Llama a este método desde tu Fragment para guardar el suscriptor
     fun guardarSuscriptor(suscriptor: SuscriptorRequest) {
         viewModelScope.launch {
+            _cargando.postValue(true) // Usamos postValue si se llama desde otro hilo, value es seguro aquí.
             try {
                 val response = suscriptorService.guardarSuscriptor(suscriptor)
                 if (response.isSuccessful) {
-                    // El suscriptor se guardó correctamente
-                    // Aquí puedes actualizar un LiveData para notificar a la UI si es necesario
-                    println("Éxito: ${response.body()}")
+                    _mensaje.postValue("Suscriptor guardado con éxito.")
+                    obtenerSuscriptores() // <-- ¡CLAVE! Refrescar la lista.
                 } else {
-                    // Hubo un error en la respuesta del servidor
-                    println("Error: ${response.errorBody()?.string()}")
+                    val errorMsg = response.errorBody()?.string()
+                    _mensaje.postValue("Error al guardar: $errorMsg")
+                    println("Error: $errorMsg")
                 }
             } catch (e: Exception) {
-                // Hubo un error en la llamada de red
+                _mensaje.postValue("Excepción al guardar: ${e.message}")
                 println("Excepción: ${e.message}")
+            } finally {
+                // No necesitas el finally para el cargando aquí,
+                // porque obtenerSuscriptores() ya lo gestiona.
             }
         }
     }
