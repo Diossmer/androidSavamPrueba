@@ -12,6 +12,9 @@
         <item android:id="@+id/nav_suscriptor"
             android:icon="@drawable/ic_suscriptor"
             android:title="@string/suscriptor"/>
+        <item android:id="@+id/nav_numeros"
+            android:icon="@drawable/ic_numeros"
+            android:title="@string/numeros"/>
     </group>
     <item android:title="@string/configuration" android:icon="@drawable/ic_configuration">
         <menu>

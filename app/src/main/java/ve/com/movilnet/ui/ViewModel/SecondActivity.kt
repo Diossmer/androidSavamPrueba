@@ -20,6 +20,7 @@ import ve.com.movilnet.data.Authentication.SessionManager
 import ve.com.movilnet.ui.Fragments.ContrasenaUpdateFragment
 import ve.com.movilnet.ui.Fragments.FragmentNumerosConsulta
 import ve.com.movilnet.ui.Fragments.FragmentUsuarios
+import ve.com.movilnet.ui.Fragments.NumerosFragment
 import ve.com.movilnet.ui.Fragments.SuscriptorFragment
 
 class SecondActivity : AppCompatActivity() {
@@ -118,6 +119,12 @@ class SecondActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
+                R.id.nav_numeros -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, NumerosFragment()).commit()
+                    drawerLayout.closeDrawers()
+                    true
+                }
 
                 else -> false // El evento no fue manejado
             }
@@ -171,6 +178,7 @@ class SecondActivity : AppCompatActivity() {
         val adminItem = menu.findItem(R.id.nav_usuario)
         val userProfileItem = menu.findItem(R.id.nav_consultar)
         val suscriptorItem = menu.findItem(R.id.nav_suscriptor)
+        val numerosItem = menu.findItem(R.id.nav_numeros)
         val contrasenaUpdate = menu.findItem(R.id.nav_cambioContrasena)
         // Lógica para mostrar/ocultar ítems
         when (userRole) {
@@ -179,6 +187,7 @@ class SecondActivity : AppCompatActivity() {
                 contrasenaUpdate.isVisible = false
                 userProfileItem?.isVisible = false
                 suscriptorItem?.isVisible = false
+                numerosItem?.isVisible = false
             }
 
             "Agente" -> {
@@ -187,6 +196,7 @@ class SecondActivity : AppCompatActivity() {
                 contrasenaUpdate.isVisible = true
                 userProfileItem?.isVisible = true
                 suscriptorItem?.isVisible = false
+                numerosItem?.isVisible = false
             }
 
             "Moderador" -> {
@@ -195,6 +205,7 @@ class SecondActivity : AppCompatActivity() {
                 contrasenaUpdate.isVisible = true
                 userProfileItem?.isVisible = false
                 suscriptorItem?.isVisible = true
+                numerosItem?.isVisible = true
             }
 
             else -> {
@@ -203,6 +214,7 @@ class SecondActivity : AppCompatActivity() {
                 contrasenaUpdate.isVisible = false
                 userProfileItem?.isVisible = false
                 suscriptorItem?.isVisible = false
+                numerosItem?.isVisible = false
                 // Aquí podrías incluso cerrar la sesión y redirigir al login
             }
         }
