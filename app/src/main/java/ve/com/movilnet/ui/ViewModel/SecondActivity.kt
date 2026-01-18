@@ -156,8 +156,6 @@ class SecondActivity : AppCompatActivity() {
                         backToast.cancel()
                         // IMPORTANTE: Para que el callback cierre la actividad,
                         // debemos deshabilitarlo y llamar de nuevo al dispatcher.
-                        // 1. Limpia los datos de sesión (token, rol, etc.).
-                        sessionManager.logout()
                         isEnabled = false
                         dispatcher.onBackPressed()
                     } else {
