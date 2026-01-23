@@ -37,29 +37,34 @@ class NumerosAdapter(
     }
 
     override fun onBindViewHolder(holder: NumeroViewHolder, position: Int) {
-        // Formateadores para convertir la fecha
-        val inputFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
-        val outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a") // Formato deseado
-
         // Vincula los datos del elemento actual con las vistas del ViewHolder
         val numero = numeros[position]
 
-        // Formateamos la fecha de manera segura y la convertimos a la zona horaria de Venezuela
+        // --- INICIO DE LA SOLUCIÓN ---
+
+        // 1. Define los formateadores
+        val inputFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
+        val outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a") // Formato deseado
+
+        // 2. Procesa la fecha de forma segura
         val fechaFormateada = try {
-            // 1. Parsear la fecha que viene de la API (en UTC)
+            // Parsea la fecha que viene de la API (asume que está en UTC o con zona)
             val zonedDateTimeUtc = ZonedDateTime.parse(numero.fecha, inputFormatter)
 
-            // 2. Definir la zona horaria de Venezuela
+            // Define la zona horaria de Venezuela
             val venezuelaZoneId = ZoneId.of("America/Caracas")
 
-            // 3. Convertir la fecha de UTC a la zona horaria de Venezuela
+            // Convierte la fecha a la zona horaria de Venezuela
             val zonedDateTimeVzla = zonedDateTimeUtc.withZoneSameInstant(venezuelaZoneId)
 
-            // 4. Formatear la fecha ya convertida para mostrarla
+            // Formatea la fecha ya convertida para mostrarla
             zonedDateTimeVzla.format(outputFormatter)
         } catch (_: Exception) {
-            numero.fecha // Fallback si la fecha es nula o inválida
+            // Si la fecha es nula, inválida o tiene un formato inesperado,
+            // muestra la cadena original para no dejar el campo vacío.
+            numero.fecha
         }
+        // --- FIN DE LA SOLUCIÓN ---
 
         holder.tvOperador.text = numero.cedula // Asumiendo que tvOperador es para la cédula
         // --- INICIO DE LA CORRECCIÓN ---
