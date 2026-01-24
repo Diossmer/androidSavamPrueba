@@ -20,6 +20,9 @@ class UsuarioViewModel : ViewModel() {
     // LiveData para manejar errores o estados de carga.
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
+    // --- NUEVO LIVE DATA PARA ERRORES DE VALIDACIÓN ---
+    private val _validationError = MutableLiveData<String?>()
+    val validationError: LiveData<String?> = _validationError
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
     private val _roles = MutableLiveData<List<RolesResponse>>()
@@ -108,6 +111,16 @@ class UsuarioViewModel : ViewModel() {
     fun limpiarUsuarioSeleccionado() {
         _usuarioSeleccionado.value = null
     }
+
+    /**
+     * Limpia el mensaje de error de validación.
+     * Debes llamar a esta función desde la vista (Fragment/Activity)
+     * después de haber mostrado el mensaje de error al usuario.
+     */
+    fun limpiarErrorDeValidacion() {
+        _validationError.value = null
+    }
+
     /**
      * Establece el usuario que ha iniciado sesión.
      * Deberías llamar a esta función después de un login exitoso.
@@ -261,13 +274,75 @@ class UsuarioViewModel : ViewModel() {
         }
     }
 
+    // --- NUEVA FUNCIÓN DE VALIDACIÓN CENTRALIZADA (CORREGIDA) ---
+    private fun validarCamposUsuario(usuario: UsuarioResponse, esNuevoUsuario: Boolean): Boolean {
+        // Validación 1: Campos básicos no deben estar vacíos
+        if (usuario.nombre.isNullOrBlank() || usuario.apellido.isNullOrBlank() || usuario.cedula.isNullOrBlank() || usuario.correo.isNullOrBlank()) {
+            _validationError.value = "Todos los campos son obligatorios."
+            return false
+        }
+
+        // --- VALIDACIÓN DE NOMBRE Y APELLIDO (YA ES CORRECTA) ---
+        // Esta expresión regular permite letras (incluyendo acentos) y espacios.
+        val soloLetrasRegex = Regex("^[\\p{L} ]+\$")
+
+        if (!soloLetrasRegex.matches(usuario.nombre)) {
+            _validationError.value = "El nombre solo debe contener letras y espacios."
+            return false
+        }
+
+        if (!soloLetrasRegex.matches(usuario.apellido)) {
+            _validationError.value = "El apellido solo debe contener letras y espacios."
+            return false
+        }
+        // --- FIN DE LA VALIDACIÓN ---
+
+        // Validación 3: Formato de la cédula (Corregido)
+        // Permite cédulas de hasta 8 dígitos y asegura que solo contengan números.
+        if (usuario.cedula.length > 8 || !usuario.cedula.all { it.isDigit() }) {
+            _validationError.value = "La cédula debe contener hasta 8 dígitos numéricos."
+            return false
+        }
+
+        // Validación 4: Contraseña (solo para usuarios nuevos o si se está cambiando)
+        if (esNuevoUsuario && usuario.password.isNullOrBlank()) {
+            _validationError.value = "La contraseña es obligatoria para nuevos usuarios."
+            return false
+        }
+        if (!usuario.password.isNullOrBlank() && usuario.password.length <= 8) {
+            _validationError.value = "La contraseña debe tener más de 8 caracteres."
+            return false
+        }
+
+        // Validación 5: Formato del correo electrónico
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(usuario.correo).matches()) {
+            _validationError.value = "El formato del correo electrónico no es válido."
+            return false
+        }
+
+        // Validación 6: Rol debe estar seleccionado
+        if (usuario.roles?.id == null) {
+            _validationError.value = "Debe seleccionar un rol para el usuario."
+            return false
+        }
+
+        // Si todas las validaciones pasan
+        _validationError.value = null // Limpiar cualquier error previo
+        return true
+    }
+
     // Dentro de la clase UsuarioViewModel, añade estas funciones:
     fun agregarUsuario(usuario: UsuarioResponse) {
+        // --- 1. VALIDACIÓN ---
+        if (!validarCamposUsuario(usuario, esNuevoUsuario = true)) {
+            return // Detiene la ejecución si la validación falla
+        }
+
         viewModelScope.launch {
             try {
                 // LA SOLUCIÓN: Obtener el primer elemento de la lista y LUEGO su id.
                 // Igual que en `actualizarUsuario`.
-                val rolId = usuario.roles?.id
+                val rolId = usuario.roles!!.id
 
                 // Esta verificación ahora funcionará correctamente.
                 if (rolId == null) {
@@ -328,10 +403,16 @@ class UsuarioViewModel : ViewModel() {
     }
 
     fun actualizarUsuario(usuario: UsuarioResponse) {
+        // --- 1. VALIDACIÓN ---
+        // Para actualizar, la contraseña no es obligatoria (es opcional si se quiere cambiar)
+        if (!validarCamposUsuario(usuario, esNuevoUsuario = false)) {
+            return // Detiene la ejecución si la validación falla
+        }
+
         viewModelScope.launch {
             try {
                 // Obtén el primer rol de la lista. Si no hay, no se podrá actualizar.
-                val rolId = usuario.roles?.id
+                val rolId = usuario.roles!!.id
                 if (usuario.id == null || rolId == null) {
                     _errorMessage.value = "Error: Faltan datos para actualizar (ID de usuario o rol)."
                     return@launch

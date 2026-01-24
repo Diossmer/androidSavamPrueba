@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import ve.com.movilnet.R
@@ -57,6 +58,7 @@ class UsuarioDialogFragment : DialogFragment() {
         setupSpinner()
         setupObservers()
         setupClickListeners()
+        setupObservers()
 
         // Decidimos si es modo CREACIÓN o EDICIÓN
         val userId = arguments?.getString("USER_ID")
@@ -123,6 +125,18 @@ class UsuarioDialogFragment : DialogFragment() {
                 populateForm(usuario) // Rellena los campos de texto
                 // Ahora que tenemos el usuario, cargamos los roles para poder encontrar el suyo.
                 viewModel.fetchRoles()
+            }
+        }
+
+        // Observador para los errores de validación
+        viewModel.validationError.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                // Muestra el error al usuario (usando un Toast, Snackbar, o un TextView)
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+
+                // Limpia el error en el ViewModel para que no se muestre de nuevo
+                // si el usuario rota la pantalla, por ejemplo.
+                viewModel.limpiarErrorDeValidacion()
             }
         }
     }

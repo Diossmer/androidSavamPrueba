@@ -18,35 +18,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nombre"
-        android:inputType="textPersonName" />
+        android:inputType="textPersonName"
+        android:maxLength="50" />
 
     <EditText
         android:id="@+id/editTextApellido"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Apellido"
-        android:inputType="textPersonName" />
+        android:inputType="textPersonName"
+        android:maxLength="50" />
 
     <EditText
         android:id="@+id/editTextCedula"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Cédula"
-        android:inputType="number" />
+        android:inputType="number"
+        android:maxLength="8" />
 
     <EditText
         android:id="@+id/editTextCorreo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Correo"
-        android:inputType="textEmailAddress" />
+        android:inputType="textEmailAddress"
+        android:maxLength="100" />
 
     <EditText
         android:id="@+id/editTextPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Contraseña"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:maxLength="50" />
 
     <TextView
         android:layout_width="wrap_content"
