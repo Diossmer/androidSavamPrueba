@@ -123,6 +123,17 @@ class SuscriptorFragment : Fragment() {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         }
+
+        // --- NUEVO OBSERVADOR PARA ERRORES DE VALIDACIÓN ---
+        viewModel.validationError.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                // Muestra el error de validación específico
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+
+                // Limpia el error en el ViewModel para que no se muestre de nuevo
+                viewModel.limpiarErrorDeValidacion()
+            }
+        }
     }
 
     // Esta función ya está correcta y no necesita cambios.
