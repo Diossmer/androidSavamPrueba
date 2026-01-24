@@ -24,8 +24,11 @@ class SuscriptorViewModel(private val suscriptorService: SuscriptorServices) :
     private val _cargando = MutableLiveData<Boolean>()
     val cargando: LiveData<Boolean> get() = _cargando
 
-    // --- MÉTODOS CRUD ---
+    // --- NUEVOS LIVE DATA PARA VALIDACIÓN ---
+    private val _validationError = MutableLiveData<String?>()
+    val validationError: LiveData<String?> = _validationError
 
+    // --- MÉTODOS CRUD ---
     fun obtenerSuscriptores() {
         viewModelScope.launch {
             _cargando.value = true
@@ -44,8 +47,55 @@ class SuscriptorViewModel(private val suscriptorService: SuscriptorServices) :
         }
     }
 
+    // --- FUNCIÓN DE VALIDACIÓN CORREGIDA ---
+    // Ahora acepta un SuscriptorRequest para coincidir con `guardarSuscriptor`
+    private fun validarCamposSuscriptor(suscriptor: SuscriptorRequest): Boolean {
+        // Validación 1: Cédula
+        if (suscriptor.cedula.isNullOrBlank()) {
+            _validationError.value = "El campo Cédula es obligatorio."
+            return false
+        }
+        if (suscriptor.cedula.length > 8 || !suscriptor.cedula.all { it.isDigit() }) {
+            _validationError.value = "La cédula debe contener hasta 8 dígitos numéricos."
+            return false
+        }
+
+        // Validación 2: Número de Teléfono
+        if (suscriptor.numeroTelefono.isNullOrBlank()) {
+            _validationError.value = "El campo Teléfono es obligatorio."
+            return false
+        }
+        // Un número de teléfono en Venezuela tiene 11 dígitos (ej: 04141234567)
+        if (suscriptor.numeroTelefono.length != 11 || !suscriptor.numeroTelefono.all { it.isDigit() }) {
+            _validationError.value = "El teléfono debe contener 11 dígitos numéricos (ej: 04141234567)."
+            return false
+        }
+
+        // Validación 3: Estatus
+        if (suscriptor.estatus.isNullOrBlank()){
+            _validationError.value = "El campo Estatus es obligatorio."
+            return false
+        }
+
+        // Validación 4: Operador
+        if (suscriptor.operador.isNullOrBlank()){
+            _validationError.value = "El campo Operador es obligatorio."
+            return false
+        }
+
+        // Si todas las validaciones pasan
+        _validationError.value = null // Limpiar cualquier error previo
+        return true
+    }
+
     // Llama a este método desde tu Fragment para guardar el suscriptor
     fun guardarSuscriptor(suscriptor: SuscriptorRequest) {
+        // 1. Validar los campos antes de hacer la llamada a la API
+        // Ahora la llamada es válida porque ambos usan SuscriptorRequest
+        if (!validarCamposSuscriptor(suscriptor)) {
+            return // Detiene la ejecución si la validación falla
+        }
+
         viewModelScope.launch {
             _cargando.postValue(true) // Usamos postValue si se llama desde otro hilo, value es seguro aquí.
             try {
@@ -64,11 +114,27 @@ class SuscriptorViewModel(private val suscriptorService: SuscriptorServices) :
             } finally {
                 // No necesitas el finally para el cargando aquí,
                 // porque obtenerSuscriptores() ya lo gestiona.
+                // `obtenerSuscriptores` ya gestiona el `_cargando.value = false`
             }
         }
     }
 
+    // --- NUEVA FUNCIÓN PARA LIMPIAR EL ERROR ---
+    /**
+     * Limpia el mensaje de error de validación.
+     * Se debe llamar después de mostrar el error en la UI.
+     */
+    fun limpiarErrorDeValidacion() {
+        _validationError.value = null
+    }
+
+    // También actualizamos la validación para el método de actualizar
     fun actualizarSuscriptor(id: String, suscriptor: SuscriptorRequest) {
+        // Añadimos la validación aquí también
+        if (!validarCamposSuscriptor(suscriptor)) {
+            return
+        }
+
         viewModelScope.launch {
             _cargando.value = true
             try {

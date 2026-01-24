@@ -22,8 +22,12 @@ import ve.com.movilnet.data.Request.ConsultaRequest
 import ve.com.movilnet.data.Request.NumeroApiRequest
 import ve.com.movilnet.utils.RetrofitClient
 import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+import kotlin.text.format
 
 class FragmentNumerosConsulta : Fragment() {
 
@@ -167,7 +171,18 @@ class FragmentNumerosConsulta : Fragment() {
                 return // Detenemos la función si la cédula es inválida
             }
 
-            val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            // --- INICIO DE LA CORRECCIÓN RECOMENDADA ---
+
+            // 1. Definir la zona horaria de Venezuela
+            val venezuelaZoneId = ZoneId.of("America/Caracas")
+
+            // 2. Obtener la fecha y hora actuales en esa zona horaria
+            val fechaHoraActualVzla = ZonedDateTime.now(venezuelaZoneId)
+
+            // 3. Formatearla a una cadena de texto en formato ISO 8601 (el más común para APIs)
+            val fechaActual = fechaHoraActualVzla.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+
+            // --- FIN DE LA CORRECCIÓN ---
             val request = ConsultaRequest(cedula = cedulaUsuario, numero = numero, fechaDeConsulta = fechaActual)
 
             // Llamamos a la API para guardar. Renombré la función en la interfaz para mayor claridad.
