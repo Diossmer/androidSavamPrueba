@@ -105,12 +105,12 @@ class FragmentNumerosConsulta : Fragment() {
                         val telegramInfo = consultaResponse.data.telegram
 
                         val tituloWhatsApp = whatsappInfo.titulo_pagina
-                        val estadoWhatsApp = if (whatsappInfo.tiene_whatsapp) "Sí posee WhatsApp." else "No posee WhatsApp."
+                        val estadoWhatsApp = if (whatsappInfo.tiene_whatsapp) "Sí posee WhatsApp Business." else "No posee WhatsApp Business."
                         val estadoTelegram = if (telegramInfo.tiene_telegram) "Sí posee Telegram." else telegramInfo.mensaje
 
                         // Actualizamos el TextView con los resultados
                         textViewResultado.text = """
-                            WhatsApp:
+                            WhatsApp Business:
                             Título: $tituloWhatsApp
                             Estado: $estadoWhatsApp
 
@@ -214,8 +214,8 @@ class FragmentNumerosConsulta : Fragment() {
         }
 
         val motivo = when {
-            faltaWhatsApp && faltaTelegram -> "WhatsApp y Telegram"
-            faltaWhatsApp -> "WhatsApp"
+            faltaWhatsApp && faltaTelegram -> "WhatsApp Business y Telegram"
+            faltaWhatsApp -> "WhatsApp Business"
             faltaTelegram -> "Telegram"
             else -> ""
         }
