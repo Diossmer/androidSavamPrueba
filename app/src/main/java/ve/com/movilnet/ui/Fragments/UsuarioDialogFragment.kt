@@ -105,6 +105,28 @@ class UsuarioDialogFragment : DialogFragment() {
     }
 
     private fun setupObservers() {
+        // Observador para mensajes de éxito
+        viewModel.successMessage.observe(viewLifecycleOwner) { mensaje ->
+            mensaje?.let {
+                // Muestra el Toast desde el Fragment
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+
+                // Cierra el diálogo si la operación fue exitosa
+                dismiss()
+
+                // Limpia el mensaje en el ViewModel para evitar que se muestre de nuevo
+                viewModel.limpiarMensajeDeExito()
+            }
+        }
+
+        // Observador para errores generales
+        viewModel.errorMessage.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(requireContext(), "Error: $it", Toast.LENGTH_SHORT).show()
+                // Aquí también podrías limpiar el error si lo deseas
+            }
+        }
+
         // Observador para la LISTA DE ROLES.
         viewModel.roles.observe(viewLifecycleOwner) { roles ->
             rolesList = roles

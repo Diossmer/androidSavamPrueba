@@ -1,6 +1,7 @@
 package ve.com.movilnet.ui.viewmodel
 
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -23,6 +24,10 @@ class UsuarioViewModel : ViewModel() {
     // --- NUEVO LIVE DATA PARA ERRORES DE VALIDACIÓN ---
     private val _validationError = MutableLiveData<String?>()
     val validationError: LiveData<String?> = _validationError
+    // --- NUEVO LIVE DATA PARA AVISOS ---
+    private val _successMessage = MutableLiveData<String?>()
+    val successMessage: LiveData<String?> = _successMessage
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
     private val _roles = MutableLiveData<List<RolesResponse>>()
@@ -309,7 +314,7 @@ class UsuarioViewModel : ViewModel() {
             _validationError.value = "La contraseña es obligatoria para nuevos usuarios."
             return false
         }
-        if (!usuario.password.isNullOrBlank() && usuario.password.length <= 8) {
+        if (!usuario.password.isNullOrBlank() && usuario.password.length < 8) {
             _validationError.value = "La contraseña debe tener más de 8 caracteres."
             return false
         }
@@ -372,6 +377,7 @@ class UsuarioViewModel : ViewModel() {
 
                 if (response.isSuccessful) {
                     //fetchUsuarios() // Refresca la lista después de agregar
+                    _successMessage.value = "¡Usuario almacenado con éxito!"
                     cargarListaDeUsuarios()
                 } else {
                     _errorMessage.value = "Error al agregar: ${response.code()}"
@@ -435,6 +441,7 @@ class UsuarioViewModel : ViewModel() {
 
                 if (response.isSuccessful) {
                     //fetchUsuarios() // Refresca la lista después de actualizar
+                    _successMessage.value = "¡Usuario actualizado con éxito!"
                     cargarListaDeUsuarios()
                 } else {
                     _errorMessage.value = "Error al actualizar: ${response.code()} - ${response.errorBody()?.string()}"
@@ -459,5 +466,13 @@ class UsuarioViewModel : ViewModel() {
                 _errorMessage.value = "Fallo al eliminar: ${e.message}"
             }
         }
+    }
+
+    // --- NUEVA FUNCIÓN PARA LIMPIAR EL AVISO ---
+    /**
+     * Limpia el mensaje de éxito para que no se muestre de nuevo.
+     */
+    fun limpiarMensajeDeExito() {
+        _successMessage.value = null
     }
 }
