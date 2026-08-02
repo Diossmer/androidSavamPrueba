@@ -9,6 +9,9 @@
     tools:context=".MainActivity">
 
     <!-- Logo de la empresa -->
+
+    <!-- Guía para centrar el contenido del formulario -->
+
     <ImageView
         android:id="@+id/logoImageView"
         android:layout_width="120dp"
@@ -19,9 +22,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.2" />
+        app:layout_constraintVertical_bias="0.545" />
 
-    <!-- Guía para centrar el contenido del formulario -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"

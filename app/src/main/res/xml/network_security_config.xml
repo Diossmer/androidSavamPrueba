@@ -4,12 +4,7 @@
         <domain includeSubdomains="true">10.0.2.2</domain> <!-- For Android Emulator -->
         <!-- CORRECTO: IP de la COMPUTADORA -->
         <domain includeSubdomains="true">192.168.100.101</domain>
-        <domain includeSubdomains="true">192.168.1.11</domain>
-        <domain includeSubdomains="true">192.168.1.102</domain>
-        <domain includeSubdomains="true">10.183.53.247</domain>
-        <domain includeSubdomains="true">10.128.237.225</domain>
-        <domain includeSubdomains="true">10.99.13.225</domain>
+        <domain includeSubdomains="true">192.168.0.108</domain>
         <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">10.84.166.225</domain>
     </domain-config>
 </network-security-config>

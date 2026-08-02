@@ -188,12 +188,18 @@ class UsuarioDialogFragment : DialogFragment() {
         }
 
         btnGuardar.setOnClickListener {
+            
             val selectedRolePosition = spinnerRoles.selectedItemPosition
             if (selectedRolePosition < 0 || selectedRolePosition >= rolesList.size) {
                 (spinnerRoles.selectedView as? TextView)?.error = "Selecciona un rol"
                 return@setOnClickListener
             }
             val selectedRoleObject = rolesList[selectedRolePosition]
+
+            if (password.text.isNotBlank() && password.text.length < 8) {
+                password.error = "La contraseña debe tener al menos 8 caracteres."
+                return@setOnClickListener
+            }
 
             // Construimos el objeto UsuarioResponse con los datos del formulario.
             val usuarioData = UsuarioResponse(
